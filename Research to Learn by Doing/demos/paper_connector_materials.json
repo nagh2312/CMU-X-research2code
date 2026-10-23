@@ -1,0 +1,124 @@
+{
+  "default_paper_id": "image-classification-lesson",
+  "papers": {
+    "image-classification-lesson": {
+      "paper_name": "Illustrative paper: CNN image classification (demo)",
+      "topic": "Image classification & computer vision",
+      "one_line": "A convolutional network classifies everyday objects; the paper reports accuracy on a large labeled set.",
+      "query_terms": [
+        "image classification",
+        "convolutional neural network",
+        "computer vision"
+      ],
+      "coursera": [
+        {
+          "title": "Convolutional Neural Networks",
+          "partner": "DeepLearning.AI",
+          "blurb": "Mapped to this paper’s CNN classification method — feature maps, accuracy, and errors.",
+          "meta": "Intermediate · ~20 hours · 4.9★",
+          "url": "https://www.coursera.org/learn/convolutional-neural-networks",
+          "color": "#0056D2"
+        },
+        {
+          "title": "Machine Learning",
+          "partner": "Stanford University",
+          "blurb": "Foundations behind assigning labels and scoring predictions — same loop as the lesson.",
+          "meta": "Beginner · ~61 hours · 4.9★",
+          "url": "https://www.coursera.org/learn/machine-learning",
+          "color": "#8C1515"
+        },
+        {
+          "title": "Introduction to Computer Vision and Image Processing",
+          "partner": "IBM",
+          "blurb": "Hands-on vision pipeline aligned with classifying images into discrete classes.",
+          "meta": "Beginner · ~12 hours · 4.6★",
+          "url": "https://www.coursera.org/learn/introduction-computer-vision-ibm",
+          "color": "#054ADA"
+        }
+      ],
+      "youtube": [
+        {
+          "title": "What is image classification?",
+          "channel": "Search: image classification explained",
+          "blurb": "Pixels → class labels; mirrors the Learn by Doing nearest-prototype exercise.",
+          "meta": "Video · ~8–15 min",
+          "url": "https://www.youtube.com/results?search_query=image+classification+CNN+explained"
+        },
+        {
+          "title": "CNNs for beginners",
+          "channel": "Search: CNN beginners",
+          "blurb": "Convolutions and feature maps — why brightness/edges matter in the toy feature map.",
+          "meta": "Video · lecture style",
+          "url": "https://www.youtube.com/results?search_query=convolutional+neural+network+beginners"
+        },
+        {
+          "title": "Nearest neighbors & decision boundaries",
+          "channel": "Search: kNN decision boundary",
+          "blurb": "Distance to class centers and boundary flips — same idea as the challenge step.",
+          "meta": "Video · conceptual",
+          "url": "https://www.youtube.com/results?search_query=k+nearest+neighbors+decision+boundary"
+        },
+        {
+          "title": "Confusion matrices & model mistakes",
+          "channel": "Search: confusion matrix ML",
+          "blurb": "How papers report errors — ties to the Explain step after you run classification.",
+          "meta": "Video · evaluation",
+          "url": "https://www.youtube.com/results?search_query=confusion+matrix+machine+learning"
+        }
+      ],
+      "news": [
+        {
+          "title": "Vision models keep pushing benchmark accuracy",
+          "source": "Google News · computer vision",
+          "blurb": "Latest coverage mapped to this paper’s accuracy story — still judge methods by held-out errors.",
+          "meta": "Latest news",
+          "url": "https://news.google.com/search?q=computer%20vision%20image%20classification%20accuracy"
+        },
+        {
+          "title": "Why edge cases still break vision systems",
+          "source": "Google News · vision failures",
+          "blurb": "Published angles on hard examples — same intuition as mistakes near class boundaries.",
+          "meta": "Published news",
+          "url": "https://news.google.com/search?q=computer%20vision%20failure%20cases%20edge%20cases"
+        },
+        {
+          "title": "CNNs in industry perception stacks",
+          "source": "Google News · autonomous perception",
+          "blurb": "Industry news adjacent to classification for real-world images.",
+          "meta": "Industry brief",
+          "url": "https://news.google.com/search?q=CNN%20image%20recognition%20industry"
+        }
+      ],
+      "journals": [
+        {
+          "title": "ImageNet Classification with Deep Convolutional Neural Networks",
+          "source": "NeurIPS / CACM lineage (AlexNet)",
+          "blurb": "Landmark CNN classification paper — historical anchor for this uploaded demo paper’s topic.",
+          "meta": "Journal · 2012",
+          "url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks"
+        },
+        {
+          "title": "Deep Residual Learning for Image Recognition",
+          "source": "CVPR (ResNet)",
+          "blurb": "Deeper classifiers after the basic CNN idea — next technical reading.",
+          "meta": "Technical journal · 2016",
+          "url": "https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html"
+        },
+        {
+          "title": "Very Deep Convolutional Networks for Large-Scale Image Recognition",
+          "source": "ICLR (VGG)",
+          "blurb": "Depth vs accuracy trade-offs in ConvNet design.",
+          "meta": "Technical journal · 2015",
+          "url": "https://arxiv.org/abs/1409.1556"
+        },
+        {
+          "title": "CS231n classification notes",
+          "source": "Stanford CS231n",
+          "blurb": "Nearest-neighbor classifiers before deep nets — closest formal match to the toy lesson.",
+          "meta": "Technical notes",
+          "url": "https://cs231n.github.io/classification/"
+        }
+      ]
+    }
+  }
+}

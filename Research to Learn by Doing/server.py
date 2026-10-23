@@ -53,7 +53,7 @@ HTML = """<!DOCTYPE html>
         <span class="tool-label">Learn</span>
         <button type="button" class="tool" data-go="explain" title="Explain"><span class="ticon">◉</span><span>Explain</span></button>
         <button type="button" class="tool" data-go="challenge" title="Challenge"><span class="ticon">◇</span><span>Challenge</span></button>
-        <button type="button" class="tool" id="open-coursera-tool" title="Open Coursera demo"><span class="ticon">▣</span><span>Coursera</span></button>
+        <button type="button" class="tool" id="open-connectors-tool" title="Connectors"><span class="ticon">▣</span><span>Connectors</span></button>
       </div>
     </div>
 
@@ -79,14 +79,11 @@ HTML = """<!DOCTYPE html>
         <div class="tree-section">
           <button type="button" class="tree-h">Connectors</button>
           <ul class="tree-list">
-            <li class="tree-item nest">Learning platforms
-              <ul>
-                <li><button type="button" class="tree-link" id="tree-coursera">Coursera</button></li>
-                <li class="muted-item">edX <span class="pill-mini">soon</span></li>
-                <li class="muted-item">Udacity <span class="pill-mini">soon</span></li>
-                <li class="muted-item">Khan Academy <span class="pill-mini">soon</span></li>
-              </ul>
-            </li>
+            <li class="muted-item" id="tree-map-status">No paper mapped yet</li>
+            <li><button type="button" class="tree-link" data-connect="coursera">Coursera</button></li>
+            <li><button type="button" class="tree-link" data-connect="youtube">YouTube</button></li>
+            <li><button type="button" class="tree-link" data-connect="news">News articles</button></li>
+            <li><button type="button" class="tree-link" data-connect="journals">Technical journals</button></li>
           </ul>
         </div>
         <div class="job-status">
@@ -240,11 +237,11 @@ HTML = """<!DOCTYPE html>
   <div class="connectors-panel" id="connectors-panel" hidden>
     <div class="connectors-card">
       <div class="connectors-head">
-        <h2>Course &amp; study connectors</h2>
+        <h2>Connectors</h2>
         <button type="button" class="btn" id="connectors-close">Close</button>
       </div>
-      <p class="muted">Hierarchical learning platforms. Select <b>Coursera</b> to open a Coursera-style study page for this lesson’s topic.</p>
-      <ul class="connector-tree" id="connector-list"></ul>
+      <p class="muted" id="connectors-map-line">Load a research paper first. Selecting a platform maps study materials to that paper, then opens the platform page.</p>
+      <ul class="connector-platforms" id="connector-list"></ul>
     </div>
   </div>
 
@@ -253,91 +250,64 @@ HTML = """<!DOCTYPE html>
 </html>
 """
 
-COURSERA_HTML = """<!DOCTYPE html>
+CONNECT_HTML = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Coursera — Image classification (demo)</title>
-<link rel="stylesheet" href="/static/coursera.css">
+<title>Connectors — study materials</title>
+<link rel="stylesheet" href="/static/connect.css">
 </head>
-<body class="cr-body">
-  <a class="cr-skip" href="#main">Skip to content</a>
-  <header class="cr-top">
-    <div class="cr-top-inner">
-      <a class="cr-logo" href="/coursera" aria-label="Coursera home">coursera</a>
-      <button type="button" class="cr-explore" id="cr-explore">Explore</button>
-      <form class="cr-search" role="search" onsubmit="return false;">
-        <input type="search" id="cr-q" placeholder="What do you want to learn?" aria-label="Search">
-        <button type="submit" class="cr-search-btn" aria-label="Search">⌕</button>
-      </form>
-      <nav class="cr-nav">
-        <a href="#courses">Degrees</a>
-        <a href="#videos">Videos</a>
-        <a href="#articles">Articles</a>
-        <a href="/">← Learn by Doing</a>
+<body>
+  <div class="cx-map-bar">
+    <div class="cx-map-bar-inner">
+      <div>
+        <div class="cx-map-label">Mapped to uploaded paper</div>
+        <div class="cx-map-paper" id="cx-paper-name">—</div>
+        <div class="cx-muted" id="cx-paper-topic" style="color:#98a2b3"></div>
+      </div>
+      <a href="/">← Back to Learn by Doing</a>
+    </div>
+  </div>
+
+  <header class="cx-top">
+    <div class="cx-top-inner">
+      <a class="cx-brand" id="cx-brand" href="#">Platform</a>
+      <nav class="cx-nav">
+        <a href="/connect/coursera">Coursera</a>
+        <a href="/connect/youtube">YouTube</a>
+        <a href="/connect/news">News</a>
+        <a href="/connect/journals">Journals</a>
+        <a href="/">Workbench</a>
       </nav>
     </div>
   </header>
 
-  <div class="cr-banner">
-    <div class="cr-banner-inner">
-      <p class="cr-eyebrow">Demo catalog · matched to your lesson</p>
-      <h1 id="cr-hero-title">Learn image classification by doing</h1>
-      <p id="cr-hero-sub" class="cr-hero-sub"></p>
-      <p class="cr-disclaimer">Illustrative Coursera-style UI for this prototype — not affiliated with or operated by Coursera, Inc.</p>
+  <div class="cx-hero">
+    <div class="cx-hero-inner">
+      <p class="cx-eyebrow">Connectors · paper-mapped study materials</p>
+      <h1 id="cx-hero-title">Study materials</h1>
+      <p id="cx-hero-sub"></p>
+      <p id="cx-paper-line" style="margin-top:10px;opacity:.9;font-size:14px"></p>
+      <p id="cx-redirect-note" style="margin-top:10px;opacity:.75;font-size:12px"></p>
     </div>
   </div>
 
-  <main id="main" class="cr-main">
-    <section class="cr-section" id="courses">
-      <div class="cr-section-head">
-        <h2>Courses</h2>
-        <p class="cr-muted">University &amp; industry courses for this topic</p>
-      </div>
-      <div class="cr-course-grid" id="cr-courses"></div>
-    </section>
-
-    <section class="cr-section" id="videos">
-      <div class="cr-section-head">
-        <h2>Videos to watch</h2>
-        <p class="cr-muted">Short lessons that mirror the hands-on exercise</p>
-      </div>
-      <div class="cr-list" id="cr-videos"></div>
-    </section>
-
-    <section class="cr-section" id="articles">
-      <div class="cr-section-head">
-        <h2>Articles &amp; reading</h2>
-        <p class="cr-muted">Guides and notes to read alongside practice</p>
-      </div>
-      <div class="cr-list" id="cr-articles"></div>
-    </section>
-
-    <section class="cr-section" id="news">
-      <div class="cr-section-head">
-        <h2>Latest &amp; published news</h2>
-        <p class="cr-muted">What is happening in vision &amp; classification</p>
-      </div>
-      <div class="cr-list" id="cr-news"></div>
-    </section>
-
-    <section class="cr-section" id="journals">
-      <div class="cr-section-head">
-        <h2>Journals &amp; papers</h2>
-        <p class="cr-muted">Foundational publications for deeper study</p>
-      </div>
-      <div class="cr-list" id="cr-journals"></div>
-    </section>
+  <main class="cx-main">
+    <div class="cx-section-head">
+      <h2 id="cx-list-label">Materials</h2>
+      <p class="cx-muted">Items below are selected for your paper. Open one to go to that platform.</p>
+    </div>
+    <div id="cx-materials"></div>
   </main>
 
-  <footer class="cr-foot">
-    <div class="cr-foot-inner">
-      <p><b>coursera</b> demo page · Research to Learn by Doing</p>
-      <p><a href="/">Back to workbench</a> · Port 8803</p>
+  <footer class="cx-foot">
+    <div class="cx-foot-inner">
+      <p>Prototype connector pages — illustrative skins, not affiliated with Coursera / YouTube / publishers.</p>
+      <p>Port 8803</p>
     </div>
   </footer>
-  <script src="/static/coursera.js"></script>
+  <script src="/static/connect.js"></script>
 </body>
 </html>
 """
@@ -359,8 +329,14 @@ class Handler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path
         if path in ("/", "/index.html"):
             return self._send(200, HTML.encode("utf-8"), "text/html; charset=utf-8")
+        # Legacy Coursera URL + paper-mapped connector destinations
         if path in ("/coursera", "/coursera/"):
-            return self._send(200, COURSERA_HTML.encode("utf-8"), "text/html; charset=utf-8")
+            return self._send(200, CONNECT_HTML.encode("utf-8"), "text/html; charset=utf-8")
+        if path.startswith("/connect/"):
+            platform = path[len("/connect/") :].strip("/").lower()
+            if platform in ("coursera", "youtube", "news", "journals"):
+                return self._send(200, CONNECT_HTML.encode("utf-8"), "text/html; charset=utf-8")
+            return self._send(404, b"unknown connector", "text/plain")
         if path.startswith("/static/"):
             name = path[len("/static/") :]
             if "/" in name or name.startswith("."):
@@ -391,7 +367,7 @@ def main() -> None:
     args = ap.parse_args()
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"Research to Learn by Doing at http://{args.host}:{args.port}/")
-    print(f"Coursera demo page at http://{args.host}:{args.port}/coursera")
+    print(f"Connectors: /connect/coursera|youtube|news|journals")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

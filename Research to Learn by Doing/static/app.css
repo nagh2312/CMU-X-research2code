@@ -448,52 +448,31 @@ button.tree-item:disabled { color: #98a2b3; cursor: default; }
   margin-bottom: 8px;
 }
 .connectors-head h2 { margin: 0; font-size: 15px; }
-.connector-tree {
+.connector-platforms {
   list-style: none;
   margin: 12px 0 0;
   padding: 0;
+  display: grid;
+  gap: 8px;
 }
-.connector-tree > li {
-  border: 1px solid var(--line);
-  border-radius: 2px;
-  margin-bottom: 8px;
-  background: #f9fafb;
-  overflow: hidden;
-}
-.connector-group {
-  padding: 8px 10px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #344054;
-  background: #eef0f3;
-  border-bottom: 1px solid var(--line);
-}
-.connector-tree ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.connector-tree ul li {
+.connector-platforms > li {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: #f9fafb;
   padding: 10px 12px;
-  border-top: 1px solid var(--line);
 }
-.connector-tree .name { font-weight: 600; font-size: 13px; }
-.connector-tree .kind { color: var(--muted); font-size: 11px; text-align: right; }
-.connector-tree .soon {
-  display: inline-block;
-  margin-top: 2px;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
+.connector-platforms .kind {
   color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: right;
+  max-width: 120px;
 }
-.connector-tree button.open-platform {
+.connector-platforms button.connector-pick {
   border: 0;
   background: transparent;
   padding: 0;
@@ -503,12 +482,18 @@ button.tree-item:disabled { color: #98a2b3; cursor: default; }
   color: inherit;
   width: 100%;
 }
-.connector-tree button.open-platform:hover .name { color: var(--blue); }
-.connector-tree .live {
-  display: inline-block;
-  margin-top: 2px;
-  font-size: 9px;
+.connector-platforms .name {
   font-weight: 700;
-  text-transform: uppercase;
-  color: var(--blue);
+  font-size: 14px;
+  color: var(--text);
+}
+.connector-platforms .blurb {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.connector-platforms button.connector-pick:hover .name { color: var(--blue); }
+.connector-platforms > li:hover {
+  border-color: #b2ccff;
+  background: var(--blue-soft);
 }

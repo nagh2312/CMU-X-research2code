@@ -91,6 +91,8 @@
     setText("upload-status", `Loaded: ${label || pack.paper.name}`);
     setText("proj-name", pack.title || pack.paper?.name || "Learning project");
     setText("tree-paper", pack.paper?.name || "Paper loaded");
+    rememberPaper();
+    refreshConnectorCopy();
     fillMethod(pack);
     fillExercise(pack);
     fillExplain(pack);
@@ -289,64 +291,94 @@
     });
   }
 
-  // --- Hierarchical connectors (Coursera opens demo page) ---
+  // --- Connectors: study platforms mapped to the uploaded paper ---
   const CONNECTORS = [
     {
-      group: "Learning platforms",
-      items: [
-        { name: "Coursera", kind: "University & industry courses", id: "coursera", live: true },
-        { name: "edX", kind: "University MOOCs", soon: true },
-        { name: "Udacity", kind: "Nanodegrees & tech skills", soon: true },
-        { name: "Khan Academy", kind: "Free foundations", soon: true },
-        { name: "DeepLearning.AI", kind: "ML / DL specializations", soon: true },
-        { name: "Udemy", kind: "Practical skill courses", soon: true },
-        { name: "LinkedIn Learning", kind: "Professional skills", soon: true },
-        { name: "MIT OpenCourseWare", kind: "Free MIT course materials", soon: true },
-        { name: "YouTube Learning", kind: "Video lectures & playlists", soon: true },
-        { name: "Fast.ai", kind: "Practical deep learning", soon: true },
-        { name: "Kaggle Learn", kind: "Short ML micro-courses", soon: true },
-        { name: "Google Skills / Cloud Skills Boost", kind: "Cloud & ML labs", soon: true },
-      ],
+      id: "coursera",
+      name: "Coursera",
+      kind: "Courses & specializations",
+      blurb: "Opens Coursera-style materials mapped to your paper, then links out to Coursera.",
+    },
+    {
+      id: "youtube",
+      name: "YouTube",
+      kind: "Videos to watch",
+      blurb: "Lecture / explainer videos mapped to the paper’s method.",
+    },
+    {
+      id: "news",
+      name: "News articles",
+      kind: "Latest & published news",
+      blurb: "News search and briefs mapped to the paper topic.",
+    },
+    {
+      id: "journals",
+      name: "Technical journals",
+      kind: "Papers & journals",
+      blurb: "Foundational technical papers mapped to your upload.",
     },
   ];
 
   const connectorsPanel = $("connectors-panel");
   const connectorList = $("connector-list");
+
+  function rememberPaper() {
+    if (state.pack?.id) {
+      sessionStorage.setItem("r2l_paper_id", state.pack.id);
+    }
+  }
+
+  function openConnector(platformId) {
+    if (!state.pack) {
+      setText("connectors-map-line", "Load a research paper first (use the demo), then pick a connector.");
+      setText("job-status", "Load a paper before opening Connectors");
+      showStep("upload");
+      openConnectors(true);
+      return;
+    }
+    rememberPaper();
+    openConnectors(false);
+    const q = encodeURIComponent(state.pack.id);
+    window.location.href = `/connect/${platformId}?paper=${q}`;
+  }
+
+  function refreshConnectorCopy() {
+    const line = $("connectors-map-line");
+    const tree = $("tree-map-status");
+    if (state.pack) {
+      const name = state.pack.paper?.name || state.pack.title;
+      if (line) {
+        line.innerHTML = `Mapped to <b>${esc(name)}</b>. Pick a platform — we’ll show study materials for this paper, then you can open the real site.`;
+      }
+      if (tree) tree.textContent = `Mapped: ${name}`;
+    } else {
+      if (line) {
+        line.textContent = "Load a research paper first. Selecting a platform maps study materials to that paper, then opens the platform page.";
+      }
+      if (tree) tree.textContent = "No paper mapped yet";
+    }
+  }
+
   if (connectorList) {
-    connectorList.innerHTML = CONNECTORS.map((g) => `
+    connectorList.innerHTML = CONNECTORS.map((c) => `
       <li>
-        <div class="connector-group">${esc(g.group)}</div>
-        <ul>
-          ${g.items.map((c) => `
-            <li>
-              <button type="button" class="open-platform" data-platform="${esc(c.id || "")}" ${c.soon ? "disabled" : ""}>
-                <div class="name">${esc(c.name)}</div>
-                ${c.live ? '<span class="live">Open demo</span>' : '<span class="soon">Coming later</span>'}
-              </button>
-              <div class="kind">${esc(c.kind)}</div>
-            </li>`).join("")}
-        </ul>
+        <button type="button" class="connector-pick" data-platform="${esc(c.id)}">
+          <div class="name">${esc(c.name)}</div>
+          <div class="blurb">${esc(c.blurb)}</div>
+        </button>
+        <div class="kind">${esc(c.kind)}</div>
       </li>`).join("");
-    connectorList.querySelectorAll(".open-platform").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = btn.dataset.platform;
-        if (id === "coursera") {
-          openConnectors(false);
-          window.location.href = "/coursera";
-        }
-      });
+    connectorList.querySelectorAll(".connector-pick").forEach((btn) => {
+      btn.addEventListener("click", () => openConnector(btn.dataset.platform));
     });
   }
 
   function openConnectors(open) {
     if (!connectorsPanel) return;
+    refreshConnectorCopy();
     connectorsPanel.hidden = !open;
     connectorsPanel.setAttribute("aria-hidden", open ? "false" : "true");
     $("connectors-btn")?.setAttribute("aria-expanded", open ? "true" : "false");
-  }
-
-  function goCoursera() {
-    window.location.href = "/coursera";
   }
 
   document.querySelectorAll(".step").forEach((btn) => {
@@ -393,6 +425,7 @@
   });
 
   $("connectors-btn")?.addEventListener("click", () => openConnectors(connectorsPanel.hidden));
+  $("open-connectors-tool")?.addEventListener("click", () => openConnectors(true));
   $("connectors-close")?.addEventListener("click", () => openConnectors(false));
   connectorsPanel?.addEventListener("click", (e) => {
     if (e.target === connectorsPanel) openConnectors(false);
@@ -400,8 +433,9 @@
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && connectorsPanel && !connectorsPanel.hidden) openConnectors(false);
   });
-  $("tree-coursera")?.addEventListener("click", goCoursera);
-  $("open-coursera-tool")?.addEventListener("click", goCoursera);
+  document.querySelectorAll("[data-connect]").forEach((btn) => {
+    btn.addEventListener("click", () => openConnector(btn.dataset.connect));
+  });
 
   const drop = $("drop");
   const file = $("file");
