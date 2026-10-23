@@ -29,8 +29,29 @@ HTML = """<!DOCTYPE html>
       <h1>Research to Simulation</h1>
       <p class="lede">Upload a paper, see what can be simulated, then experiment with the method — not just read it.</p>
     </div>
-    <a class="ghost" href="https://github.com/nagh2312/CMU-X-research2code/tree/research-to-simulation/Research%20to%20Simulation" target="_blank" rel="noopener">Prototype notes</a>
+    <div class="top-actions">
+      <button type="button" class="ghost connectors-btn" id="connectors-btn" aria-expanded="false" aria-controls="connectors-panel" title="Third-party simulation environments">
+        <svg class="plug-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M8 2v4M16 2v4M7 6h10v4a5 5 0 0 1-5 5h0a5 5 0 0 1-5-5V6z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 15v7M9 22h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        Connectors
+      </button>
+      <a class="ghost" href="https://github.com/nagh2312/CMU-X-research2code/tree/research-to-simulation/Research%20to%20Simulation" target="_blank" rel="noopener">Prototype notes</a>
+    </div>
   </header>
+
+  <div class="connectors-panel" id="connectors-panel" hidden>
+    <div class="connectors-card">
+      <div class="connectors-head">
+        <h2>Third-party connectors</h2>
+        <button type="button" class="btn" id="connectors-close">Close</button>
+      </div>
+      <p class="muted">Future scope: choose an external simulation environment and run or mirror the method there. Listing only for now — live APIs are not wired yet.</p>
+      <ul class="connector-list" id="connector-list"></ul>
+      <p class="muted">We can have options like this and simulate the environment in the connected tool.</p>
+    </div>
+  </div>
 
   <nav class="steps" id="steps">
     <button type="button" class="step active" data-step="upload">1. Upload</button>
@@ -164,6 +185,15 @@ HTML = """<!DOCTYPE html>
   <footer class="foot">
     <p>Prototype only. Faithful simulation needs enough detail in the paper; missing pieces are listed under assumptions.</p>
   </footer>
+
+  <button type="button" class="connectors-fab" id="connectors-fab" title="Third-party connectors">
+    <svg class="plug-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M8 2v4M16 2v4M7 6h10v4a5 5 0 0 1-5 5h0a5 5 0 0 1-5-5V6z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 15v7M9 22h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    <span>Connectors</span>
+  </button>
+
   <script src="/static/app.js"></script>
 </body>
 </html>

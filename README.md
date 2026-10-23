@@ -54,3 +54,30 @@ The rest of the repository is still the R2C codebase (pipeline, agents, output-s
 ## Status
 
 Prototype only. Real paper ingest and multi-method simulation packs are not wired to the R2C agents yet.
+
+---
+
+## Future scope
+
+**Third-party connectors.** We can offer options to connect out to external simulation environments and run (or mirror) the method there — so users pick a target and simulate in that environment, not only in the built-in viewer.
+
+Examples:
+
+| Connector | Kind of environment |
+|-----------|---------------------|
+| **AutoCAD** | CAD / drafting and geometry |
+| **Tinkercad** | Browser CAD / simple 3D design |
+| **SimScale** | Cloud CAE (CFD, FEA, thermal) |
+| **MATLAB / Simulink** | Models, control, and system simulation |
+| **Gazebo** | Robot / world simulation (often with ROS) |
+| **Webots** | Robot simulation |
+| **Unity** | Interactive 3D / game-engine sims |
+| **Unreal Engine** | High-fidelity 3D environments |
+| **ANSYS** | Engineering multiphysics |
+| **COMSOL Multiphysics** | Physics-based FEM simulation |
+| **Blender** | 3D scenes and simple physics |
+| **PyBullet / MuJoCo** | Physics engines for robotics & RL |
+| **NVIDIA Isaac Sim** | Robotics simulation |
+| **OpenModelica** | Modelica-based system simulation |
+
+The prototype already shows a **Connectors** control that lists these options (wiring to real APIs is future work).

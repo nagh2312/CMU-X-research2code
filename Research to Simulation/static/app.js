@@ -298,5 +298,45 @@
     handleFile(e.dataTransfer.files[0]);
   });
 
+  // Third-party simulation environments (future connectors — UI list only).
+  const CONNECTORS = [
+    { name: "AutoCAD", kind: "CAD / drafting and geometry" },
+    { name: "Tinkercad", kind: "Browser CAD / simple 3D design" },
+    { name: "SimScale", kind: "Cloud CAE (CFD, FEA, thermal)" },
+    { name: "MATLAB / Simulink", kind: "Models, control, and system simulation" },
+    { name: "Gazebo", kind: "Robot / world simulation (often with ROS)" },
+    { name: "Webots", kind: "Robot simulation" },
+    { name: "Unity", kind: "Interactive 3D / game-engine sims" },
+    { name: "Unreal Engine", kind: "High-fidelity 3D environments" },
+    { name: "ANSYS", kind: "Engineering multiphysics" },
+    { name: "COMSOL Multiphysics", kind: "Physics-based FEM simulation" },
+    { name: "Blender", kind: "3D scenes and simple physics" },
+    { name: "PyBullet / MuJoCo", kind: "Physics engines for robotics & RL" },
+    { name: "NVIDIA Isaac Sim", kind: "Robotics simulation" },
+    { name: "OpenModelica", kind: "Modelica-based system simulation" },
+  ];
+
+  const connectorsPanel = $("connectors-panel");
+  const connectorList = $("connector-list");
+  connectorList.innerHTML = CONNECTORS.map((c) => `
+    <li>
+      <div>
+        <div class="name">${esc(c.name)}</div>
+        <span class="soon">Coming later</span>
+      </div>
+      <div class="kind">${esc(c.kind)}</div>
+    </li>`).join("");
+
+  function openConnectors(open) {
+    connectorsPanel.hidden = !open;
+    $("connectors-btn").setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  $("connectors-btn").addEventListener("click", () => openConnectors(connectorsPanel.hidden));
+  $("connectors-fab").addEventListener("click", () => openConnectors(true));
+  $("connectors-close").addEventListener("click", () => openConnectors(false));
+  connectorsPanel.addEventListener("click", (e) => {
+    if (e.target === connectorsPanel) openConnectors(false);
+  });
+
   showStep("upload");
 })();

@@ -51,3 +51,11 @@ python3 test_demo.py --demo
 | `test_demo.py` | Unit tests and `--demo` CLI |
 
 This folder is intentionally separate from the main R2C pipeline viewer so the simulation output screen can evolve on its own.
+
+---
+
+## Future scope
+
+**Third-party connectors:** AutoCAD, Tinkercad, and other simulation environments (SimScale, MATLAB/Simulink, Gazebo, Webots, Unity, Unreal Engine, ANSYS, COMSOL, Blender, PyBullet/MuJoCo, Isaac Sim, OpenModelica).
+
+We can have options like this and simulate the environment in the connected tool — not only in the built-in viewer. The UI includes a **Connectors** button that lists these targets; live API hooks are future work.
