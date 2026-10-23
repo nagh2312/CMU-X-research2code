@@ -1,0 +1,71 @@
+{
+  "id": "image-classification-lesson",
+  "title": "Learn a tiny image classifier by doing",
+  "paper": {
+    "name": "Illustrative paper: CNN image classification (demo)",
+    "one_line": "A convolutional network classifies everyday objects; the paper reports accuracy on a large labeled set.",
+    "domain": "machine learning / computer vision"
+  },
+  "core_method": {
+    "what_they_did": "Train a neural classifier on labeled images, then assign each new image to the class with the highest predicted score.",
+    "inputs": "RGB images and class labels (e.g. cat vs dog vs car).",
+    "how_results": "Compare predicted labels to ground truth; report overall accuracy and per-class errors.",
+    "from_paper": [
+      "Classification = map an input image to a discrete class label.",
+      "Performance is judged by how often the predicted label matches the true label.",
+      "Hard examples and mistakes matter for understanding the method."
+    ]
+  },
+  "teaching_simplifications": [
+    "We do not train a CNN here — that needs more compute and paper detail than this prototype uses.",
+    "Each “image” is shown as a small feature card with two numbers: brightness and edge-ness (0–10).",
+    "Classification uses nearest class prototype (1-NN to class centers) — same decide-a-label idea, much simpler math.",
+    "Only eight toy samples so you can see every prediction by hand."
+  ],
+  "exercise": {
+    "goal": "Classify each sample by finding the nearest class prototype, then check which ones you (and the method) got right.",
+    "classes": [
+      { "id": "A", "name": "Smooth / bright", "prototype": [8.0, 2.0], "color": "#38bdf8" },
+      { "id": "B", "name": "Dark / edgy", "prototype": [2.5, 7.5], "color": "#a78bfa" },
+      { "id": "C", "name": "Mid brightness / mid edges", "prototype": [5.0, 5.0], "color": "#34d399" }
+    ],
+    "samples": [
+      { "id": "s1", "label": "A", "features": [7.5, 2.2], "hint": "Bright and smooth — should sit near class A." },
+      { "id": "s2", "label": "B", "features": [2.0, 8.0], "hint": "Dark with strong edges — near B." },
+      { "id": "s3", "label": "C", "features": [5.2, 4.8], "hint": "Middle of both axes — near C." },
+      { "id": "s4", "label": "A", "features": [9.0, 1.5], "hint": "Very bright, few edges." },
+      { "id": "s5", "label": "B", "features": [3.0, 6.5], "hint": "Somewhat dark, fairly edgy." },
+      { "id": "s6", "label": "C", "features": [4.5, 5.5], "hint": "Close to C’s center." },
+      { "id": "s7", "label": "A", "features": [6.0, 3.5], "hint": "Borderline — still closer to A than B/C for this demo." },
+      { "id": "s8", "label": "B", "features": [1.5, 9.0], "hint": "Extreme dark + edges." }
+    ],
+    "steps": [
+      "Look at the three class prototypes (centers) on the feature map.",
+      "For each sample, measure distance to each prototype (Euclidean in 2D).",
+      "Assign the label of the nearest prototype — that is the model’s prediction.",
+      "Compare prediction to the true label; mark hits and misses.",
+      "Read the explanation: why misses happen near boundaries, and how this mirrors the paper’s error analysis idea."
+    ]
+  },
+  "explanations": {
+    "after_run": "You just ran the same high-level loop the paper describes: take an input, produce a class, score against truth. The paper uses a deep net and pixels; here the “net” is nearest prototype on two hand-built features.",
+    "mistakes": "Mistakes usually sit near the boundary between two class centers — the same intuition as confusing classes in a real classifier’s confusion matrix.",
+    "paper_link": "In the paper, accuracy summarizes many such decisions. Studying individual errors (as you did) is how researchers interpret what the method still gets wrong."
+  },
+  "challenge": {
+    "title": "Challenge: flip a prediction",
+    "prompt": "Sample s7 is labeled A. Drag its brightness or edge-ness (or type new values) until the nearest prototype becomes B or C. Then run again.",
+    "sample_id": "s7",
+    "success": "You moved the sample across a decision boundary. In the paper’s world, that is like changing the image enough that the model’s top class flips — useful intuition before you touch real training code."
+  },
+  "evidence_boundaries": {
+    "from_paper": [
+      "Classify inputs into discrete labels and measure accuracy / errors."
+    ],
+    "simplified_for_teaching": [
+      "2D features instead of raw images",
+      "Prototype nearest-neighbor instead of a trained CNN",
+      "Eight samples instead of a full benchmark"
+    ]
+  }
+}
