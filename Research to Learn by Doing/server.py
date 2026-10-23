@@ -255,58 +255,27 @@ CONNECT_HTML = """<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Connectors — study materials</title>
+<title>Connectors</title>
 <link rel="stylesheet" href="/static/connect.css">
 </head>
 <body>
   <div class="cx-map-bar">
     <div class="cx-map-bar-inner">
       <div>
-        <div class="cx-map-label">Mapped to uploaded paper</div>
+        <div class="cx-map-label">Mapped to your uploaded research paper</div>
         <div class="cx-map-paper" id="cx-paper-name">—</div>
-        <div class="cx-muted" id="cx-paper-topic" style="color:#98a2b3"></div>
+        <div id="cx-paper-topic" class="cx-map-topic"></div>
       </div>
-      <a href="/">← Back to Learn by Doing</a>
-    </div>
-  </div>
-
-  <header class="cx-top">
-    <div class="cx-top-inner">
-      <a class="cx-brand" id="cx-brand" href="#">Platform</a>
-      <nav class="cx-nav">
+      <div class="cx-map-links">
         <a href="/connect/coursera">Coursera</a>
         <a href="/connect/youtube">YouTube</a>
         <a href="/connect/news">News</a>
         <a href="/connect/journals">Journals</a>
-        <a href="/">Workbench</a>
-      </nav>
-    </div>
-  </header>
-
-  <div class="cx-hero">
-    <div class="cx-hero-inner">
-      <p class="cx-eyebrow">Connectors · paper-mapped study materials</p>
-      <h1 id="cx-hero-title">Study materials</h1>
-      <p id="cx-hero-sub"></p>
-      <p id="cx-paper-line" style="margin-top:10px;opacity:.9;font-size:14px"></p>
-      <p id="cx-redirect-note" style="margin-top:10px;opacity:.75;font-size:12px"></p>
+        <a href="/">← Workbench</a>
+      </div>
     </div>
   </div>
-
-  <main class="cx-main">
-    <div class="cx-section-head">
-      <h2 id="cx-list-label">Materials</h2>
-      <p class="cx-muted">Items below are selected for your paper. Open one to go to that platform.</p>
-    </div>
-    <div id="cx-materials"></div>
-  </main>
-
-  <footer class="cx-foot">
-    <div class="cx-foot-inner">
-      <p>Prototype connector pages — illustrative skins, not affiliated with Coursera / YouTube / publishers.</p>
-      <p>Port 8803</p>
-    </div>
-  </footer>
+  <div id="cx-app"><p class="cx-loading">Loading mapped materials…</p></div>
   <script src="/static/connect.js"></script>
 </body>
 </html>

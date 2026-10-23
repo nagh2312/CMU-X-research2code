@@ -1,107 +1,243 @@
-// Connector destination: materials mapped to the uploaded research paper.
+// Immersive connector screens: Coursera lecture, YouTube watch, News article.
 (function () {
-  const PLATFORMS = {
-    coursera: {
-      key: "coursera",
-      brand: "coursera",
-      title: "Courses for your paper",
-      subtitle: "Study platforms → Coursera. Materials are chosen from the paper you uploaded in Learn by Doing.",
-      cta: "Go to Coursera",
-      listLabel: "Mapped courses",
-      kind: "Course",
-      useCards: true,
-    },
-    youtube: {
-      key: "youtube",
-      brandHtml: 'You<span>Tube</span>',
-      title: "Videos for your paper",
-      subtitle: "Study platforms → YouTube. Watch/list results mapped to your uploaded paper’s method.",
-      cta: "Watch on YouTube",
-      listLabel: "Mapped videos",
-      kind: "Video",
-      useCards: false,
-    },
-    news: {
-      key: "news",
-      brand: "News",
-      title: "News articles for your paper",
-      subtitle: "Study platforms → News. Latest and published coverage mapped to your paper’s topic.",
-      cta: "Open article",
-      listLabel: "Mapped news",
-      kind: "News",
-      useCards: false,
-    },
-    journals: {
-      key: "journals",
-      brand: "Journals",
-      title: "Technical journals for your paper",
-      subtitle: "Study platforms → Technical journals. Foundational papers mapped to your upload.",
-      cta: "Open journal",
-      listLabel: "Mapped journals",
-      kind: "Journal",
-      useCards: false,
-    },
-  };
-
   const $ = (id) => document.getElementById(id);
   function esc(s) {
     return String(s ?? "").replace(/[&<>"']/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
 
-  function platformFromPath() {
+  function platformKey() {
     const path = location.pathname.replace(/\/+$/, "");
-    if (path === "/coursera") return PLATFORMS.coursera;
+    if (path === "/coursera") return "coursera";
     const m = path.match(/\/connect\/([a-z]+)/i);
-    return (m && PLATFORMS[m[1].toLowerCase()]) || PLATFORMS.coursera;
+    return (m && m[1].toLowerCase()) || "coursera";
   }
 
   function paperIdFromQuery() {
-    const q = new URLSearchParams(location.search);
-    return q.get("paper")
+    return new URLSearchParams(location.search).get("paper")
       || sessionStorage.getItem("r2l_paper_id")
       || null;
   }
 
-  function renderCards(items, cta) {
-    return (items || []).map((it) => `
-      <article class="cx-card">
-        <div class="cx-thumb" style="background:${esc(it.color || "#0056d2")}">${esc(it.meta || "Course")}</div>
-        <div class="cx-card-body">
-          <p>${esc(it.partner || it.source || it.channel || "")}</p>
-          <h3>${esc(it.title)}</h3>
-          <p>${esc(it.blurb || "")}</p>
-          <p>${esc(it.meta || "")}</p>
-          <a class="cx-cta" href="${esc(it.url)}" target="_blank" rel="noopener">${esc(cta)}</a>
-        </div>
-      </article>`).join("");
+  function playerHTML({ badge, title, duration, variant }) {
+    const playClass = variant === "youtube" ? "player-play yt" : "player-play";
+    return `
+      <button type="button" class="player-stage" data-play-demo aria-label="Play lecture video (demo — not started)">
+        <span class="player-badge">${esc(badge)}</span>
+        <span class="${playClass}" aria-hidden="true"></span>
+        <span class="player-caption">
+          <span>${esc(title)}</span>
+          <span>${esc(duration || "0:00")} · Not started</span>
+        </span>
+        <span class="player-progress" aria-hidden="true"><i></i></span>
+      </button>`;
   }
 
-  function renderRows(items, kind, cta) {
-    return (items || []).map((it) => `
-      <article class="cx-row">
-        <div class="cx-kind">${esc(it.kind || kind)}</div>
-        <div>
-          <h3><a href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.title)}</a></h3>
-          <p>${esc(it.blurb || "")}</p>
-          <p class="cx-muted">${esc([it.channel, it.source, it.partner, it.meta].filter(Boolean).join(" · "))}</p>
+  function wirePlayer(root, outboundUrl) {
+    root.querySelectorAll("[data-play-demo]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const bar = btn.querySelector(".player-progress > i");
+        if (bar) bar.style.width = "3%";
+        const cap = btn.querySelector(".player-caption span:last-child");
+        if (cap) cap.textContent = (cap.textContent || "").replace("Not started", "Ready — opens platform");
+        // Brief beat so it feels like a player, then go to the real platform search/course.
+        setTimeout(() => {
+          if (outboundUrl) window.open(outboundUrl, "_blank", "noopener");
+        }, 350);
+      });
+    });
+  }
+
+  function renderCoursera(paper, pack) {
+    const lectures = pack.lectures || [];
+    let idx = Number(pack.active_lecture) || 0;
+    if (idx < 0 || idx >= lectures.length) idx = 0;
+
+    const app = $("cx-app");
+    const paint = () => {
+      const lec = lectures[idx] || {};
+      document.title = `${pack.course_title || "Course"} | Coursera`;
+      app.innerHTML = `
+        <header class="cr-top">
+          <div class="cr-top-inner">
+            <a class="cr-logo" href="/connect/coursera">coursera</a>
+            <div class="cr-search"><input value="${esc(paper.topic || "")}" readonly aria-label="Search"><span>⌕</span></div>
+            <div class="cr-top-meta">Lecture · mapped to your paper</div>
+          </div>
+        </header>
+        <div class="cr-course-head">
+          <p class="cr-partner">${esc(pack.partner || "Partner")}</p>
+          <h1>${esc(pack.course_title || "Course")}</h1>
+          <p class="cr-stars">★ ${esc(pack.rating || "4.9")} · ${esc(pack.enrolled || "")} · ${esc(pack.level || "")}</p>
+          <p class="cr-mapped">Mapped from: ${esc(paper.paper_name)}</p>
         </div>
-        <a class="cx-open" href="${esc(it.url)}" target="_blank" rel="noopener">${esc(cta)}</a>
-      </article>`).join("");
+        <div class="cr-layout">
+          <section>
+            ${playerHTML({
+              badge: "Lecture video",
+              title: lec.title || "Lecture",
+              duration: lec.duration,
+              variant: "coursera",
+            })}
+            <h2 class="cr-lecture-title">${esc(lec.title || "")}</h2>
+            <p class="cr-lecture-meta">${esc(lec.week || "Week")} · ${esc(lec.duration || "")} · Video yet to be played</p>
+            <p class="cr-blurb">${esc(lec.blurb || "")}</p>
+            <div class="cr-actions">
+              <a class="cr-btn primary" href="${esc(lec.url || pack.url)}" target="_blank" rel="noopener">Continue on Coursera</a>
+              <a class="cr-btn ghost" href="${esc(pack.url)}" target="_blank" rel="noopener">Open full course</a>
+            </div>
+          </section>
+          <aside class="cr-sidebar">
+            <div class="cr-sidebar-h">Course content · paper-mapped lectures</div>
+            ${lectures.map((l, i) => `
+              <button type="button" class="cr-lec ${i === idx ? "active" : ""}" data-lec="${i}">
+                <span class="cr-lec-num">${i + 1}</span>
+                <span>
+                  <p class="cr-lec-title">${esc(l.title)}</p>
+                  <p class="cr-lec-week">${esc(l.week)}</p>
+                </span>
+                <span class="cr-lec-dur">${esc(l.duration)}</span>
+              </button>`).join("")}
+          </aside>
+        </div>`;
+      app.querySelectorAll("[data-lec]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          idx = Number(btn.dataset.lec);
+          paint();
+        });
+      });
+      wirePlayer(app, lec.url || pack.url);
+    };
+    paint();
+  }
+
+  function renderYouTube(paper, pack) {
+    const videos = pack.videos || [];
+    let idx = Number(pack.active) || 0;
+    if (idx < 0 || idx >= videos.length) idx = 0;
+    const app = $("cx-app");
+
+    const paint = () => {
+      const v = videos[idx] || {};
+      document.title = `${v.title || "Video"} - YouTube`;
+      app.innerHTML = `
+        <header class="yt-top">
+          <div class="yt-top-inner">
+            <a class="yt-logo" href="/connect/youtube"><b>▶</b> YouTube</a>
+            <div class="yt-search"><input value="${esc(paper.topic || "")}" readonly aria-label="Search"><span>⌕</span></div>
+          </div>
+        </header>
+        <div class="yt-layout">
+          <section>
+            ${playerHTML({
+              badge: "Up next · not playing",
+              title: v.title || "Video",
+              duration: v.duration,
+              variant: "youtube",
+            })}
+            <h1 class="yt-title">${esc(v.title || "")}</h1>
+            <p class="yt-sub">${esc(v.views || "")} · ${esc(v.ago || "")} · ${esc(v.duration || "")}</p>
+            <div class="yt-channel">
+              <div class="yt-avatar" aria-hidden="true"></div>
+              <div>
+                <b>${esc(v.channel || "Channel")}</b>
+                <div class="yt-mapped">Mapped to your paper: ${esc(paper.paper_name)}</div>
+              </div>
+            </div>
+            <div class="yt-desc">${esc(v.blurb || "")}</div>
+            <a class="yt-open" href="${esc(v.url)}" target="_blank" rel="noopener">Open on YouTube</a>
+          </section>
+          <aside>
+            <p class="yt-side-h">Videos mapped to your research paper</p>
+            ${videos.map((item, i) => `
+              <button type="button" class="yt-rec ${i === idx ? "active" : ""}" data-yt="${i}">
+                <div class="yt-thumb"><span>${esc(item.duration || "")}</span></div>
+                <div>
+                  <p class="yt-rec-title">${esc(item.title)}</p>
+                  <p class="yt-rec-meta">${esc(item.channel)}</p>
+                  <p class="yt-rec-meta">${esc(item.views)}</p>
+                </div>
+              </button>`).join("")}
+          </aside>
+        </div>`;
+      app.querySelectorAll("[data-yt]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          idx = Number(btn.dataset.yt);
+          paint();
+        });
+      });
+      wirePlayer(app, v.url);
+    };
+    paint();
+  }
+
+  function renderNews(paper, pack) {
+    const articles = pack.articles || [];
+    let idx = Number(pack.active) || 0;
+    if (idx < 0 || idx >= articles.length) idx = 0;
+    const app = $("cx-app");
+
+    const paint = () => {
+      const a = articles[idx] || {};
+      document.title = `${a.title || "Article"} | News`;
+      const paras = (a.body || [a.blurb || ""]).map((p) => `<p>${esc(p)}</p>`).join("");
+      app.innerHTML = `
+        <header class="nw-mast">
+          <div class="nw-mast-inner">
+            <a class="nw-brand" href="/connect/news">The Paper Desk</a>
+            <p class="nw-date-line">News · mapped to your research upload</p>
+          </div>
+        </header>
+        <article class="nw-layout">
+          <p class="nw-kicker">${esc(a.kicker || a.meta || "News")}</p>
+          <h1>${esc(a.title || "")}</h1>
+          <p class="nw-byline">By ${esc(a.author || "Staff")} · ${esc(a.source || "")} · ${esc(a.date || "")}</p>
+          <div class="nw-hero">Feature image · ${esc(paper.topic || "research topic")}</div>
+          <div class="nw-mapped">Mapped to uploaded paper: <b>${esc(paper.paper_name)}</b> — ${esc(paper.one_line || "")}</div>
+          <div class="nw-body">${paras}</div>
+          <div class="nw-actions">
+            <a class="nw-btn" href="${esc(a.url)}" target="_blank" rel="noopener">Read on news platform</a>
+          </div>
+          <div class="nw-related">
+            <h2>More articles mapped to this paper</h2>
+            ${articles.map((item, i) => `
+              <button type="button" data-nw="${i}">
+                <h3>${esc(item.title)}</h3>
+                <p>${esc(item.source)} · ${esc(item.date || "")}</p>
+              </button>`).join("")}
+          </div>
+        </article>`;
+      app.querySelectorAll("[data-nw]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          idx = Number(btn.dataset.nw);
+          paint();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      });
+    };
+    paint();
+  }
+
+  function renderJournals(paper, items) {
+    document.title = "Technical journals | Connectors";
+    $("cx-app").innerHTML = `
+      <div class="jn-wrap">
+        <h1>Technical journals</h1>
+        <p>Mapped to <b>${esc(paper.paper_name)}</b></p>
+        <div class="jn-list">
+          ${(items || []).map((it) => `
+            <article class="jn-item">
+              <h3><a href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.title)}</a></h3>
+              <p>${esc(it.source)} · ${esc(it.meta || "")}</p>
+              <p>${esc(it.blurb || "")}</p>
+            </article>`).join("")}
+        </div>
+      </div>`;
   }
 
   async function load() {
-    const platform = platformFromPath();
-    document.body.classList.add(`platform-${platform.key}`);
-
-    const brand = $("cx-brand");
-    if (brand) {
-      if (platform.brandHtml) brand.innerHTML = platform.brandHtml;
-      else brand.textContent = platform.brand;
-    }
-    $("cx-hero-title").textContent = platform.title;
-    $("cx-hero-sub").textContent = platform.subtitle;
-    $("cx-list-label").textContent = platform.listLabel;
+    const key = platformKey();
+    document.body.classList.add(`platform-${key}`);
 
     const res = await fetch("/demo/paper_connector_materials.json");
     if (!res.ok) throw new Error("Could not load paper→connector map");
@@ -117,30 +253,16 @@
 
     $("cx-paper-name").textContent = paper.paper_name || paperId;
     $("cx-paper-topic").textContent = paper.topic || "";
-    $("cx-paper-line").textContent = paper.one_line || "";
 
-    const items = paper[platform.key] || [];
-    const host = $("cx-materials");
-    if (!items.length) {
-      host.innerHTML = `<div class="cx-empty"><p><b>No materials mapped yet</b> for this paper on ${esc(platform.brand || platform.key)}.</p>
-        <p class="cx-muted">Upload a supported demo paper in the workbench, then reopen Connectors.</p>
-        <p><a href="/">← Back to Learn by Doing</a></p></div>`;
-      return;
-    }
-
-    host.innerHTML = platform.useCards
-      ? `<div class="cx-grid">${renderCards(items, platform.cta)}</div>`
-      : `<div class="cx-list">${renderRows(items, platform.kind, platform.cta)}</div>`;
-
-    // Update outbound links context note
-    const note = $("cx-redirect-note");
-    if (note) {
-      note.textContent = `Selecting an item opens ${platform.brand || platform.key} (or search) in a new tab. Mapping used paper id “${paperId}”.`;
-    }
+    if (key === "coursera") return renderCoursera(paper, paper.coursera || {});
+    if (key === "youtube") return renderYouTube(paper, paper.youtube || {});
+    if (key === "news") return renderNews(paper, paper.news || {});
+    if (key === "journals") return renderJournals(paper, paper.journals || []);
+    $("cx-app").innerHTML = `<p class="cx-loading">Unknown connector.</p>`;
   }
 
   load().catch((err) => {
-    const host = $("cx-materials");
-    if (host) host.innerHTML = `<div class="cx-empty"><p>${esc(err.message)}</p><p><a href="/">← Back</a></p></div>`;
+    const app = $("cx-app");
+    if (app) app.innerHTML = `<p class="cx-loading">${esc(err.message)}</p>`;
   });
 })();

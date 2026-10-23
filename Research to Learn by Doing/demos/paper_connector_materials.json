@@ -10,85 +10,144 @@
         "convolutional neural network",
         "computer vision"
       ],
-      "coursera": [
-        {
-          "title": "Convolutional Neural Networks",
-          "partner": "DeepLearning.AI",
-          "blurb": "Mapped to this paper’s CNN classification method — feature maps, accuracy, and errors.",
-          "meta": "Intermediate · ~20 hours · 4.9★",
-          "url": "https://www.coursera.org/learn/convolutional-neural-networks",
-          "color": "#0056D2"
-        },
-        {
-          "title": "Machine Learning",
-          "partner": "Stanford University",
-          "blurb": "Foundations behind assigning labels and scoring predictions — same loop as the lesson.",
-          "meta": "Beginner · ~61 hours · 4.9★",
-          "url": "https://www.coursera.org/learn/machine-learning",
-          "color": "#8C1515"
-        },
-        {
-          "title": "Introduction to Computer Vision and Image Processing",
-          "partner": "IBM",
-          "blurb": "Hands-on vision pipeline aligned with classifying images into discrete classes.",
-          "meta": "Beginner · ~12 hours · 4.6★",
-          "url": "https://www.coursera.org/learn/introduction-computer-vision-ibm",
-          "color": "#054ADA"
-        }
-      ],
-      "youtube": [
-        {
-          "title": "What is image classification?",
-          "channel": "Search: image classification explained",
-          "blurb": "Pixels → class labels; mirrors the Learn by Doing nearest-prototype exercise.",
-          "meta": "Video · ~8–15 min",
-          "url": "https://www.youtube.com/results?search_query=image+classification+CNN+explained"
-        },
-        {
-          "title": "CNNs for beginners",
-          "channel": "Search: CNN beginners",
-          "blurb": "Convolutions and feature maps — why brightness/edges matter in the toy feature map.",
-          "meta": "Video · lecture style",
-          "url": "https://www.youtube.com/results?search_query=convolutional+neural+network+beginners"
-        },
-        {
-          "title": "Nearest neighbors & decision boundaries",
-          "channel": "Search: kNN decision boundary",
-          "blurb": "Distance to class centers and boundary flips — same idea as the challenge step.",
-          "meta": "Video · conceptual",
-          "url": "https://www.youtube.com/results?search_query=k+nearest+neighbors+decision+boundary"
-        },
-        {
-          "title": "Confusion matrices & model mistakes",
-          "channel": "Search: confusion matrix ML",
-          "blurb": "How papers report errors — ties to the Explain step after you run classification.",
-          "meta": "Video · evaluation",
-          "url": "https://www.youtube.com/results?search_query=confusion+matrix+machine+learning"
-        }
-      ],
-      "news": [
-        {
-          "title": "Vision models keep pushing benchmark accuracy",
-          "source": "Google News · computer vision",
-          "blurb": "Latest coverage mapped to this paper’s accuracy story — still judge methods by held-out errors.",
-          "meta": "Latest news",
-          "url": "https://news.google.com/search?q=computer%20vision%20image%20classification%20accuracy"
-        },
-        {
-          "title": "Why edge cases still break vision systems",
-          "source": "Google News · vision failures",
-          "blurb": "Published angles on hard examples — same intuition as mistakes near class boundaries.",
-          "meta": "Published news",
-          "url": "https://news.google.com/search?q=computer%20vision%20failure%20cases%20edge%20cases"
-        },
-        {
-          "title": "CNNs in industry perception stacks",
-          "source": "Google News · autonomous perception",
-          "blurb": "Industry news adjacent to classification for real-world images.",
-          "meta": "Industry brief",
-          "url": "https://news.google.com/search?q=CNN%20image%20recognition%20industry"
-        }
-      ],
+      "coursera": {
+        "course_title": "Convolutional Neural Networks",
+        "partner": "DeepLearning.AI",
+        "rating": "4.9",
+        "enrolled": "480,000 already enrolled",
+        "level": "Intermediate",
+        "url": "https://www.coursera.org/learn/convolutional-neural-networks",
+        "active_lecture": 0,
+        "lectures": [
+          {
+            "week": "Week 1",
+            "title": "What is image classification?",
+            "duration": "8:24",
+            "blurb": "Mapped to your paper: map an input image to a discrete class label.",
+            "url": "https://www.coursera.org/learn/convolutional-neural-networks"
+          },
+          {
+            "week": "Week 1",
+            "title": "From pixels to predictions",
+            "duration": "11:02",
+            "blurb": "How classifiers score inputs — same loop as your Learn by Doing exercise.",
+            "url": "https://www.coursera.org/learn/convolutional-neural-networks"
+          },
+          {
+            "week": "Week 2",
+            "title": "Edge detectors & feature maps",
+            "duration": "14:40",
+            "blurb": "Why brightness / edge-ness matter — ties to your 2D feature map.",
+            "url": "https://www.coursera.org/learn/convolutional-neural-networks"
+          },
+          {
+            "week": "Week 2",
+            "title": "CNNs for object categories",
+            "duration": "16:18",
+            "blurb": "Convolutional stacks behind the paper’s illustrative CNN story.",
+            "url": "https://www.coursera.org/learn/convolutional-neural-networks"
+          },
+          {
+            "week": "Week 3",
+            "title": "Accuracy, mistakes & hard examples",
+            "duration": "12:05",
+            "blurb": "Boundary mistakes — mirrors your Explain / Challenge steps.",
+            "url": "https://www.coursera.org/learn/convolutional-neural-networks"
+          },
+          {
+            "week": "Week 3",
+            "title": "Reading a classification paper",
+            "duration": "9:51",
+            "blurb": "How to connect lecture ideas back to the paper you uploaded.",
+            "url": "https://www.coursera.org/learn/convolutional-neural-networks"
+          }
+        ]
+      },
+      "youtube": {
+        "active": 0,
+        "videos": [
+          {
+            "title": "What is image classification? (mapped to your paper)",
+            "channel": "CV Explained",
+            "views": "1.2M views",
+            "ago": "2 years ago",
+            "duration": "8:24",
+            "blurb": "Pixels → class labels; mirrors your nearest-prototype exercise.",
+            "url": "https://www.youtube.com/results?search_query=image+classification+CNN+explained"
+          },
+          {
+            "title": "CNNs for beginners — feature maps & edges",
+            "channel": "Deep Learning Lab",
+            "views": "860K views",
+            "ago": "1 year ago",
+            "duration": "14:02",
+            "blurb": "Convolutions and why edge-ness shows up in your toy feature map.",
+            "url": "https://www.youtube.com/results?search_query=convolutional+neural+network+beginners"
+          },
+          {
+            "title": "Nearest neighbors & decision boundaries",
+            "channel": "StatQuest style",
+            "views": "420K views",
+            "ago": "3 years ago",
+            "duration": "11:40",
+            "blurb": "Distance to class centers — same idea as flipping a prediction in the challenge.",
+            "url": "https://www.youtube.com/results?search_query=k+nearest+neighbors+decision+boundary"
+          },
+          {
+            "title": "Confusion matrices & model mistakes",
+            "channel": "ML Metrics",
+            "views": "310K views",
+            "ago": "8 months ago",
+            "duration": "10:15",
+            "blurb": "How papers report errors after you run classification.",
+            "url": "https://www.youtube.com/results?search_query=confusion+matrix+machine+learning"
+          }
+        ]
+      },
+      "news": {
+        "active": 0,
+        "articles": [
+          {
+            "title": "Vision models keep pushing benchmark accuracy — what that means for classifiers like yours",
+            "source": "Research Briefing",
+            "date": "March 12, 2026",
+            "author": "Staff Writer",
+            "kicker": "Computer vision",
+            "blurb": "Latest coverage mapped to your paper’s accuracy story.",
+            "body": [
+              "New image-recognition systems continue to post higher scores on standard classification benchmarks. For researchers reading a CNN classification paper — like the one you uploaded — the headline number is only the start.",
+              "What matters next is how the method fails: rare classes, lighting shifts, and examples sitting near decision boundaries. That is the same intuition you practiced in Learn by Doing when a sample flipped from one prototype to another.",
+              "Experts note that published accuracy on clear, well-labeled sets can look strong while edge cases remain open. Mapping news to your paper is a reminder to read the limitations section alongside the leaderboard."
+            ],
+            "url": "https://news.google.com/search?q=computer%20vision%20image%20classification%20accuracy"
+          },
+          {
+            "title": "Why edge cases still break vision systems",
+            "source": "Tech Daily",
+            "date": "January 28, 2026",
+            "author": "A. Rivera",
+            "kicker": "Published analysis",
+            "blurb": "Hard examples near class boundaries — aligned with your Explain step.",
+            "body": [
+              "Production vision stacks still stumble when inputs sit between categories or under unusual conditions. Papers that report strong overall accuracy often leave those failure modes to future work.",
+              "Your uploaded demo paper’s story — classify objects, then study mistakes — is exactly the habit practitioners recommend when reading this kind of news."
+            ],
+            "url": "https://news.google.com/search?q=computer%20vision%20failure%20cases%20edge%20cases"
+          },
+          {
+            "title": "CNNs in industry perception stacks",
+            "source": "Industry Wire",
+            "date": "December 3, 2025",
+            "author": "Desk",
+            "kicker": "Industry",
+            "blurb": "How classification models show up outside the lab.",
+            "body": [
+              "From inspection cameras to assistive perception, convolutional classifiers remain a workhorse. News coverage increasingly pairs model claims with evaluation discipline — accuracy plus error analysis."
+            ],
+            "url": "https://news.google.com/search?q=CNN%20image%20recognition%20industry"
+          }
+        ]
+      },
       "journals": [
         {
           "title": "ImageNet Classification with Deep Convolutional Neural Networks",
