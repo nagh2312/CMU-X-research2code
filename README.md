@@ -18,8 +18,9 @@ Conclusions and future-work sections are often brief or hard to turn into a plan
 4. **Avoid inventing a gap** if the paper does not support one.
 5. **Explore future scope** the authors already stated.
 6. **Suggest concrete next steps** — extensions, experiments, alternatives, new conditions.
+7. **Adjacency opportunity** — what else is close to the topic (without going far), plus **TAM / SAM / SOM** sizing with a credibility check on numbers you enter.
 
-**Important limitation:** A single paper cannot prove a gap is new across the whole field. Evidence from the uploaded paper is kept separate from anything that would need related literature.
+**Important limitation:** A single paper cannot prove a gap is new across the whole field. Evidence from the uploaded paper is kept separate from anything that would need related literature. Market figures are not in the paper; the tool only checks internal consistency of what you paste in.
 
 ## Quickstart
 

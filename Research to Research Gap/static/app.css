@@ -137,12 +137,61 @@ main { max-width: 1100px; margin: 0 auto; padding: 18px 28px 40px; }
 .btn.primary { background: var(--teal); border-color: #14b8a6; color: #ccfbf1; }
 .btn.primary:hover { background: #0d9488; }
 
-.grid2 {
+.grid2, .grid3 {
   display: grid;
   gap: 12px;
   margin-bottom: 4px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
+.grid2 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.grid3 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.def-card { margin-bottom: 0; }
+
+.funnel { margin: 14px 0 4px; display: grid; gap: 6px; justify-items: center; }
+.funnel-tier {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px;
+  border-radius: 8px;
+  color: #ccfbf1;
+}
+.funnel-tier.tam { width: 100%; background: #134e4a; }
+.funnel-tier.sam { width: 78%; background: #0f766e; }
+.funnel-tier.som { width: 52%; background: #14b8a6; color: #042f2e; }
+
+.market-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px 14px;
+  margin-top: 10px;
+}
+.market-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.market-form input, .market-form select {
+  font: inherit;
+  font-weight: 400;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #111827;
+  color: var(--text);
+}
+.cred-result {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+.cred-result h3 { margin: 0 0 6px; }
+.cred-ok { background: #052e16; border-color: #15803d; color: #bbf7d0; }
+.cred-warn { background: var(--amber); border-color: var(--amber-line); color: var(--amber-text); }
+.cred-bad { background: var(--red); border-color: var(--red-line); color: #fecaca; }
 
 .gap-item, .step-item, .fw-item {
   border: 1px solid var(--line);

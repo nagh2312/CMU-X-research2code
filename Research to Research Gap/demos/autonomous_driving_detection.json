@@ -132,5 +132,65 @@
       "Whether a specific newer architecture already solves the limitation.",
       "Priority 3's novelty as a research contribution beyond this paper's setup."
     ]
+  },
+  "adjacency": {
+    "topic_anchor": "Camera-based object detection for on-road autonomous driving",
+    "stay_close_rule": "Stay within perception for driving (same sensors, same object classes, or the same evaluation story). Do not jump to unrelated ML domains.",
+    "opportunities": [
+      {
+        "title": "Adverse-weather detection (rain / fog / spray)",
+        "why_adjacent": "Same detector family and driving objects; only the condition distribution changes — already flagged in the paper.",
+        "distance": "very_close",
+        "explore": ["Condition-tagged splits", "Augmentation vs real adverse data", "Per-condition mAP"]
+      },
+      {
+        "title": "Low-light / night detection",
+        "why_adjacent": "Same task and labels; lighting shift is a near neighbor of the clear-daytime setup.",
+        "distance": "very_close",
+        "explore": ["Night-only AP", "Headlight glare failure cases"]
+      },
+      {
+        "title": "Camera–radar / LiDAR fusion for the same objects",
+        "why_adjacent": "Still on-vehicle perception for the same classes; adds a sensor, not a new application.",
+        "distance": "close",
+        "explore": ["Late fusion baselines", "When camera-only fails in weather"]
+      },
+      {
+        "title": "Rare-class long-tail (bicycles, scooters at distance)",
+        "why_adjacent": "Paper already notes weaker AP on rare classes; stays inside the same benchmark story.",
+        "distance": "close",
+        "explore": ["Long-tail sampling", "Size-stratified AP"]
+      },
+      {
+        "title": "Out of scope (do not treat as adjacent)",
+        "why_adjacent": "These leave the paper’s topic.",
+        "distance": "far",
+        "explore": ["General NLP", "Medical imaging", "Indoor robot manipulation"]
+      }
+    ],
+    "market": {
+      "context": "Illustrative sizing for a perception / ADAS software slice — not from the paper. Replace with your sources.",
+      "definitions": {
+        "TAM": "Total Addressable Market — everyone who could buy in the broad category (e.g. global ADAS / autonomous perception software spend).",
+        "SAM": "Serviceable Available Market — the slice you can serve with your offer (e.g. camera-based detection for passenger ADAS in regions you can sell into).",
+        "SOM": "Serviceable Obtainable Market — what you can realistically win in a near horizon (capacity, sales, competition)."
+      },
+      "how_calculated": [
+        "Top-down: start from an industry TAM figure → apply filters (region, segment, product type) to get SAM → apply expected share or capacity to get SOM.",
+        "Bottom-up: (# target vehicles or fleets) × (attach rate) × (ASP or subscription) = SAM or SOM building blocks.",
+        "Consistency rule: SOM ≤ SAM ≤ TAM (same currency, same year)."
+      ],
+      "demo_defaults": {
+        "currency": "USD",
+        "year": 2024,
+        "tam": 42000000000,
+        "sam": 6500000000,
+        "som": 180000000,
+        "tam_source": "Illustrative: global ADAS / autonomy software category (replace with a cited report)",
+        "sam_source": "Illustrative: camera-perception / detection software in addressable passenger ADAS regions",
+        "som_source": "Illustrative: early share of SAM (~2.8%) for a focused product in 3 years",
+        "method": "top_down"
+      }
+    }
   }
 }

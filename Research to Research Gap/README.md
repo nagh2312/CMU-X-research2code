@@ -43,6 +43,8 @@ python3 test_demo.py --demo
 - **Author-acknowledged** vs **inferred from the paper** (never treated as field-wide novelty)  
 - Prioritized next steps (what each involves and what it could establish)  
 - Suggested experiments when the paper gives enough detail  
+- **Adjacency opportunity** — nearby topics to explore without leaving the main theme  
+- **TAM / SAM / SOM** — definitions, how they are calculated, and a form to enter known figures and check credibility (ordering, sources, aggressive shares)
 
 ## Important limitation
 

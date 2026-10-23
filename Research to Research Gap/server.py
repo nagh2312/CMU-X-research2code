@@ -37,6 +37,7 @@ HTML = """<!DOCTYPE html>
     <button type="button" class="step" data-step="understand">2. Understand</button>
     <button type="button" class="step" data-step="gaps">3. Gaps</button>
     <button type="button" class="step" data-step="next">4. Next steps</button>
+    <button type="button" class="step" data-step="adjacency">5. Adjacency opportunity</button>
   </nav>
 
   <main>
@@ -134,6 +135,59 @@ HTML = """<!DOCTYPE html>
         <h3>When no clear gap exists</h3>
         <p id="no-gap-when" class="muted"></p>
         <ul id="no-gap-suggestions"></ul>
+      </div>
+      <div class="row">
+        <button type="button" class="btn primary" data-go="adjacency">Adjacency opportunity &amp; market sizing</button>
+      </div>
+    </section>
+
+    <section id="panel-adjacency" class="panel" hidden>
+      <div class="card highlight">
+        <h2>Adjacency opportunity</h2>
+        <p>What else can be explored <b>without going far</b> from the main topic.</p>
+        <p class="muted" id="adj-anchor"></p>
+        <p class="muted" id="adj-rule"></p>
+      </div>
+      <div id="adj-list"></div>
+
+      <div class="card">
+        <h2>TAM, SAM, and SOM</h2>
+        <p class="muted" id="market-context"></p>
+        <div class="grid3" id="market-defs"></div>
+        <h3>How these are calculated</h3>
+        <ul id="market-how"></ul>
+        <div class="funnel" aria-hidden="true">
+          <div class="funnel-tier tam">TAM — broadest</div>
+          <div class="funnel-tier sam">SAM — filtered</div>
+          <div class="funnel-tier som">SOM — obtainable</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Enter known market figures &amp; check credibility</h2>
+        <p class="muted">Paste numbers you already have (reports, bottom-up models). We only check internal consistency and basic plausibility — not whether a source is “true.”</p>
+        <div class="market-form">
+          <label>Currency <input id="m-currency" type="text" value="USD"></label>
+          <label>Year <input id="m-year" type="number" min="1990" max="2100" value="2024"></label>
+          <label>Method
+            <select id="m-method">
+              <option value="top_down">Top-down (report → filters)</option>
+              <option value="bottom_up">Bottom-up (units × price)</option>
+              <option value="mixed">Mixed</option>
+            </select>
+          </label>
+          <label>TAM <input id="m-tam" type="number" min="0" step="any" placeholder="e.g. 42000000000"></label>
+          <label>TAM source <input id="m-tam-src" type="text" placeholder="Report name / URL / note"></label>
+          <label>SAM <input id="m-sam" type="number" min="0" step="any"></label>
+          <label>SAM source <input id="m-sam-src" type="text"></label>
+          <label>SOM <input id="m-som" type="number" min="0" step="any"></label>
+          <label>SOM source <input id="m-som-src" type="text"></label>
+        </div>
+        <div class="row">
+          <button type="button" class="btn primary" id="m-check">Check credibility</button>
+          <button type="button" class="btn" id="m-fill-demo">Fill demo defaults</button>
+        </div>
+        <div id="m-result" class="cred-result" hidden></div>
       </div>
     </section>
   </main>

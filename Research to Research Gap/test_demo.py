@@ -15,7 +15,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-from analyze import gap_kinds, prioritize_steps, summary_lines, validate_pack  # noqa: E402
+from analyze import (  # noqa: E402
+    check_market_credibility,
+    gap_kinds,
+    prioritize_steps,
+    summary_lines,
+    validate_pack,
+)
 
 DEMOS = ROOT / "demos"
 
@@ -63,6 +69,47 @@ class SummaryTests(unittest.TestCase):
         self.assertTrue(any("yes" in x.lower() for x in lines))
         lines2 = summary_lines(load("paper_already_closed.json"))
         self.assertTrue(any("no" in x.lower() for x in lines2))
+
+
+class AdjacencyMarketTests(unittest.TestCase):
+    def test_adjacency_present_and_close(self):
+        pack = load("autonomous_driving_detection.json")
+        adj = pack["adjacency"]
+        self.assertTrue(adj["opportunities"])
+        self.assertTrue(any(o["distance"] == "very_close" for o in adj["opportunities"]))
+        self.assertIn("TAM", adj["market"]["definitions"])
+        self.assertIn("SAM", adj["market"]["definitions"])
+        self.assertIn("SOM", adj["market"]["definitions"])
+
+    def test_market_ordering_ok(self):
+        d = load("autonomous_driving_detection.json")["adjacency"]["market"]["demo_defaults"]
+        result = check_market_credibility({
+            **d,
+            "tam_source": d["tam_source"],
+            "sam_source": d["sam_source"],
+            "som_source": d["som_source"],
+        })
+        self.assertEqual(result["errors"], 0)
+        self.assertEqual(result["verdict"], "Internally credible")
+
+    def test_market_rejects_som_gt_sam(self):
+        result = check_market_credibility({
+            "currency": "USD", "year": 2024, "method": "top_down",
+            "tam": 100, "sam": 40, "som": 50,
+            "tam_source": "Report A 2024", "sam_source": "Report A filter", "som_source": "Internal model",
+        })
+        self.assertGreater(result["errors"], 0)
+        self.assertEqual(result["verdict"], "Not credible yet")
+
+    def test_market_warns_without_sources(self):
+        result = check_market_credibility({
+            "currency": "USD", "year": 2024, "method": "top_down",
+            "tam": 100, "sam": 40, "som": 5,
+            "tam_source": "", "sam_source": "", "som_source": "",
+        })
+        self.assertEqual(result["errors"], 0)
+        self.assertGreater(result["warnings"], 0)
+        self.assertEqual(result["verdict"], "Partly credible")
 
 
 def print_demo() -> None:

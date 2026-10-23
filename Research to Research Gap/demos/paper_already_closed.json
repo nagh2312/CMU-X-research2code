@@ -78,5 +78,53 @@
       "Whether a newer architecture would beat this result.",
       "Whether multi-city scaling is still an open contribution in the field."
     ]
+  },
+  "adjacency": {
+    "topic_anchor": "Multi-condition camera object detection for driving",
+    "stay_close_rule": "Stay on multi-condition driving perception. Prefer scaling and comparison extensions the authors already allow — do not invent a weather gap.",
+    "opportunities": [
+      {
+        "title": "Multi-city scaling (author future work)",
+        "why_adjacent": "Same method and metrics; only data geography grows.",
+        "distance": "very_close",
+        "explore": ["Per-city mAP", "Learning curves vs data volume"]
+      },
+      {
+        "title": "Stronger contemporary baseline comparison",
+        "why_adjacent": "Same benchmark protocol; changes the competitor, not the problem.",
+        "distance": "close",
+        "explore": ["Head-to-head table", "Latency–accuracy Pareto"]
+      },
+      {
+        "title": "Out of scope",
+        "why_adjacent": "Leaves the paper’s closed evaluation story.",
+        "distance": "far",
+        "explore": ["Claiming weather robustness as an open gap", "Unrelated application domains"]
+      }
+    ],
+    "market": {
+      "context": "Illustrative sizing only — paper does not provide market figures.",
+      "definitions": {
+        "TAM": "Total Addressable Market — broad category demand.",
+        "SAM": "Serviceable Available Market — filtered to your product and reach.",
+        "SOM": "Serviceable Obtainable Market — near-term capturable share."
+      },
+      "how_calculated": [
+        "Top-down filters: TAM → SAM → SOM.",
+        "Bottom-up: customers × attach rate × price.",
+        "Require SOM ≤ SAM ≤ TAM in the same year and currency."
+      ],
+      "demo_defaults": {
+        "currency": "USD",
+        "year": 2024,
+        "tam": 42000000000,
+        "sam": 8000000000,
+        "som": 250000000,
+        "tam_source": "Illustrative industry category (cite a real report in production)",
+        "sam_source": "Illustrative multi-condition perception software slice",
+        "som_source": "Illustrative near-term obtainable share",
+        "method": "top_down"
+      }
+    }
   }
 }
