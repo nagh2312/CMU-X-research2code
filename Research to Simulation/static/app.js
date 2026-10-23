@@ -329,13 +329,16 @@
 
   function openConnectors(open) {
     connectorsPanel.hidden = !open;
+    connectorsPanel.setAttribute("aria-hidden", open ? "false" : "true");
     $("connectors-btn").setAttribute("aria-expanded", open ? "true" : "false");
   }
   $("connectors-btn").addEventListener("click", () => openConnectors(connectorsPanel.hidden));
-  $("connectors-fab").addEventListener("click", () => openConnectors(true));
   $("connectors-close").addEventListener("click", () => openConnectors(false));
   connectorsPanel.addEventListener("click", (e) => {
     if (e.target === connectorsPanel) openConnectors(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !connectorsPanel.hidden) openConnectors(false);
   });
 
   showStep("upload");

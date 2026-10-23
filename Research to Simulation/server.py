@@ -23,7 +23,7 @@ HTML = """<!DOCTYPE html>
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
-  <header class="top">
+  <header class="top shell">
     <div>
       <p class="eyebrow">From paper to experiment</p>
       <h1>Research to Simulation</h1>
@@ -53,14 +53,14 @@ HTML = """<!DOCTYPE html>
     </div>
   </div>
 
-  <nav class="steps" id="steps">
+  <nav class="steps shell" id="steps" aria-label="Workflow steps">
     <button type="button" class="step active" data-step="upload">1. Upload</button>
     <button type="button" class="step" data-step="understand">2. Understand</button>
     <button type="button" class="step" data-step="simulate">3. Simulate</button>
     <button type="button" class="step" data-step="results">4. Results</button>
   </nav>
 
-  <main>
+  <main class="shell">
     <section id="panel-upload" class="panel">
       <div class="card highlight">
         <h2>Upload a research paper</h2>
@@ -171,10 +171,12 @@ HTML = """<!DOCTYPE html>
       </div>
       <div class="card">
         <h3>Scenario history</h3>
-        <table>
-          <thead><tr><th>#</th><th>Status</th><th>Path length</th><th>Expanded</th><th>Heuristic</th></tr></thead>
-          <tbody id="history"></tbody>
-        </table>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Status</th><th>Path length</th><th>Expanded</th><th>Heuristic</th></tr></thead>
+            <tbody id="history"></tbody>
+          </table>
+        </div>
       </div>
       <div class="row">
         <button type="button" class="btn primary" data-go="simulate">Try another scenario</button>
@@ -182,17 +184,9 @@ HTML = """<!DOCTYPE html>
     </section>
   </main>
 
-  <footer class="foot">
-    <p>Prototype only. Faithful simulation needs enough detail in the paper; missing pieces are listed under assumptions.</p>
+  <footer class="foot shell">
+    <p>Prototype only. Faithful simulation needs enough detail in the paper; missing pieces are listed under assumptions. Port <b>8801</b>.</p>
   </footer>
-
-  <button type="button" class="connectors-fab" id="connectors-fab" title="Third-party connectors">
-    <svg class="plug-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M8 2v4M16 2v4M7 6h10v4a5 5 0 0 1-5 5h0a5 5 0 0 1-5-5V6z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M12 15v7M9 22h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-    </svg>
-    <span>Connectors</span>
-  </button>
 
   <script src="/static/app.js"></script>
 </body>
