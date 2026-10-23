@@ -1,4 +1,4 @@
-// Research to Simulation — interactive path-planning demo.
+// Research to Simulation — interactive path-planning demo (SimScale-style workbench).
 (function () {
   const state = {
     demo: null,
@@ -16,21 +16,82 @@
     results: $("panel-results"),
   };
 
+  const COLORS = {
+    bg: "#1f2428",
+    cell: "#2a3036",
+    expanded: "#3538cd",
+    path: "#2e90fa",
+    obstacle: "#667085",
+    start: "#12b76a",
+    goal: "#f79009",
+  };
+
+  function setText(id, text) {
+    const el = $(id);
+    if (el) el.textContent = text;
+  }
+
+  function jobStatusForStep(name) {
+    if (name === "upload") {
+      return state.demo ? "Paper loaded — review method analysis" : "Idle — load a paper to begin";
+    }
+    if (name === "understand") return "Method analysis ready";
+    if (name === "simulate") {
+      if (state.lastRun) return jobStatusForRun(state.lastRun);
+      return state.unlocked.simulate ? "Ready to run" : "Load a paper to unlock simulation";
+    }
+    if (name === "results") {
+      if (state.lastRun) return jobStatusForRun(state.lastRun);
+      return state.unlocked.results ? "Results available" : "Run a scenario to see results";
+    }
+    return "Idle — load a paper to begin";
+  }
+
+  function jobStatusForRun(result) {
+    if (result.status === "found") return "Run finished — path found";
+    if (result.status === "trivial") return "Run finished — start equals goal";
+    if (result.status === "blocked") return "Run finished — no path";
+    return "Run finished";
+  }
+
+  function setJobStatus(text) {
+    setText("job-status", text);
+  }
+
   function showStep(name) {
-    Object.entries(panels).forEach(([k, el]) => { el.hidden = k !== name; });
+    Object.entries(panels).forEach(([k, el]) => {
+      if (el) el.hidden = k !== name;
+    });
     document.querySelectorAll(".step").forEach((btn) => {
       const s = btn.dataset.step;
       btn.classList.toggle("active", s === name);
       const locked = s !== "upload" && !state.unlocked[s];
       btn.disabled = locked;
     });
+    setJobStatus(jobStatusForStep(name));
   }
 
   function list(el, items) {
+    if (!el) return;
     el.innerHTML = (items || []).map((t) => `<li>${esc(t)}</li>`).join("") || "<li class='muted'>None listed</li>";
   }
   function esc(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  function updateRunTree() {
+    const tree = $("run-tree");
+    if (!tree) return;
+    if (!state.history.length) {
+      tree.innerHTML = `<li class="muted-item">No runs yet</li>`;
+      return;
+    }
+    tree.innerHTML = state.history.map((h) => {
+      const label = h.status === "found"
+        ? `Run ${h.n} · path ${h.length}`
+        : `Run ${h.n} · ${h.status}`;
+      return `<li class="run-item">${esc(label)}</li>`;
+    }).join("");
   }
 
   async function loadDemo() {
@@ -46,17 +107,20 @@
     state.unlocked.understand = true;
     state.unlocked.simulate = true;
     fillUnderstand(demo);
-    $("upload-status").textContent = `Loaded: ${demo.paper.name}`;
-    $("heuristic").value = demo.controls.heuristic || "manhattan";
-    $("diagonal").checked = !!demo.controls.allow_diagonal;
+    setText("upload-status", `Loaded: ${demo.paper.name}`);
+    setText("proj-name", demo.title || demo.paper?.name || "Simulation Project");
+    const heuristic = $("heuristic");
+    if (heuristic) heuristic.value = demo.controls.heuristic || "manhattan";
+    const diagonal = $("diagonal");
+    if (diagonal) diagonal.checked = !!demo.controls.allow_diagonal;
     showStep("understand");
     draw();
   }
 
   function fillUnderstand(demo) {
-    $("method-title").textContent = demo.title;
-    $("method-line").textContent = demo.paper.one_line;
-    $("method-paper").textContent = `From: ${demo.paper.name}`;
+    setText("method-title", demo.title);
+    setText("method-line", demo.paper.one_line);
+    setText("method-paper", `From: ${demo.paper.name}`);
     list($("list-yes"), demo.simulatable.yes);
     list($("list-partial"), demo.simulatable.partial);
     list($("list-missing"), demo.simulatable.missing);
@@ -131,11 +195,13 @@
 
   function runScenario() {
     if (!state.demo || !state.scene) return;
+    const heuristicEl = $("heuristic");
+    const diagonalEl = $("diagonal");
     const opts = {
       w: state.demo.controls.grid_w,
       h: state.demo.controls.grid_h,
-      heuristic: $("heuristic").value,
-      diagonal: $("diagonal").checked,
+      heuristic: heuristicEl ? heuristicEl.value : "manhattan",
+      diagonal: diagonalEl ? diagonalEl.checked : false,
       stepCost: state.demo.controls.step_cost || 1,
     };
     const result = plan(state.scene, opts);
@@ -152,15 +218,19 @@
     state.unlocked.results = true;
     fillRunStats(result);
     fillResults(result);
+    updateRunTree();
+    setJobStatus(jobStatusForRun(result));
     draw();
-    $("sim-hint").textContent = result.status === "found"
+    setText("sim-hint", result.status === "found"
       ? "Path drawn in blue. Open Results for the paper-linked explanation."
-      : "No path under current rules. Try clearing obstacles or moving start/goal.";
+      : "No path under current rules. Try clearing obstacles or moving start/goal.");
   }
 
   function fillRunStats(result) {
+    const el = $("run-stats");
+    if (!el) return;
     const length = result.path.length ? result.path.length - 1 : 0;
-    $("run-stats").innerHTML = `
+    el.innerHTML = `
       <dt>Status</dt><dd>${esc(result.status)}${result.note ? " — " + esc(result.note) : ""}</dd>
       <dt>Path length</dt><dd>${result.status === "found" || result.status === "trivial" ? length : "—"}</dd>
       <dt>Cost</dt><dd>${result.cost == null ? "—" : Number(result.cost).toFixed(2)}</dd>
@@ -182,15 +252,19 @@
       story = demo.explain_templates.blocked;
       if (result.note) story += " " + result.note;
     }
-    if ($("diagonal").checked) {
+    const diagonal = $("diagonal");
+    if (diagonal && diagonal.checked) {
       story += " Diagonal moves were enabled for this run — that choice is marked as an assumption, not a paper claim.";
     }
-    $("result-story").textContent = story;
+    setText("result-story", story);
     list($("result-supported"), demo.supported_by_paper);
     list($("result-assumptions"), demo.assumptions);
-    $("history").innerHTML = state.history.map((h) =>
-      `<tr><td>${h.n}</td><td>${esc(h.status)}</td><td>${h.length}</td><td>${h.expanded}</td><td>${esc(h.heuristic)}</td></tr>`
-    ).join("");
+    const history = $("history");
+    if (history) {
+      history.innerHTML = state.history.map((h) =>
+        `<tr><td>${h.n}</td><td>${esc(h.status)}</td><td>${h.length}</td><td>${h.expanded}</td><td>${esc(h.heuristic)}</td></tr>`
+      ).join("");
+    }
   }
 
   function draw() {
@@ -201,7 +275,7 @@
     const h = state.demo.controls.grid_h;
     const cw = canvas.width / w;
     const ch = canvas.height / h;
-    ctx.fillStyle = "#0b1220";
+    ctx.fillStyle = COLORS.bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     const expanded = new Set((state.lastRun?.expanded || []).map(([x, y]) => key(x, y)));
@@ -210,12 +284,12 @@
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
         const k = key(x, y);
-        let fill = "#111827";
-        if (expanded.has(k)) fill = "#1e3a8a";
-        if (onPath.has(k)) fill = "#2563eb";
-        if (state.scene.obstacles.has(k)) fill = "#4b5563";
-        if (x === state.scene.start[0] && y === state.scene.start[1]) fill = "#16a34a";
-        if (x === state.scene.goal[0] && y === state.scene.goal[1]) fill = "#d97706";
+        let fill = COLORS.cell;
+        if (expanded.has(k)) fill = COLORS.expanded;
+        if (onPath.has(k)) fill = COLORS.path;
+        if (state.scene.obstacles.has(k)) fill = COLORS.obstacle;
+        if (x === state.scene.start[0] && y === state.scene.start[1]) fill = COLORS.start;
+        if (x === state.scene.goal[0] && y === state.scene.goal[1]) fill = COLORS.goal;
         ctx.fillStyle = fill;
         ctx.fillRect(x * cw + 1, y * ch + 1, cw - 2, ch - 2);
       }
@@ -224,6 +298,7 @@
 
   function cellFromEvent(e) {
     const canvas = $("world");
+    if (!canvas || !state.demo) return null;
     const rect = canvas.getBoundingClientRect();
     const w = state.demo.controls.grid_w;
     const h = state.demo.controls.grid_h;
@@ -254,6 +329,7 @@
       state.scene.start = [x, y];
     }
     state.lastRun = null;
+    setJobStatus("Ready to run");
     draw();
   }
 
@@ -266,37 +342,76 @@
   document.querySelectorAll("[data-go]").forEach((btn) => {
     btn.addEventListener("click", () => showStep(btn.dataset.go));
   });
-  $("use-demo").addEventListener("click", () => loadDemo().catch((err) => {
-    $("upload-status").textContent = err.message;
-  }));
-  $("run").addEventListener("click", runScenario);
-  $("reset").addEventListener("click", () => {
-    if (!state.demo) return;
-    state.scene = {
-      start: state.demo.default_scene.start.slice(),
-      goal: state.demo.default_scene.goal.slice(),
-      obstacles: new Set(state.demo.default_scene.obstacles.map(([x, y]) => key(x, y))),
-    };
-    state.lastRun = null;
-    draw();
-  });
-  $("world").addEventListener("click", onCanvasClick);
+
+  const useDemo = $("use-demo");
+  if (useDemo) {
+    useDemo.addEventListener("click", () => loadDemo().catch((err) => {
+      setText("upload-status", err.message);
+    }));
+  }
+
+  const runBtn = $("run");
+  if (runBtn) runBtn.addEventListener("click", runScenario);
+
+  const resetBtn = $("reset");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      if (!state.demo) return;
+      state.scene = {
+        start: state.demo.default_scene.start.slice(),
+        goal: state.demo.default_scene.goal.slice(),
+        obstacles: new Set(state.demo.default_scene.obstacles.map(([x, y]) => key(x, y))),
+      };
+      state.lastRun = null;
+      setJobStatus("Ready to run");
+      draw();
+    });
+  }
+
+  const world = $("world");
+  if (world) world.addEventListener("click", onCanvasClick);
+
+  const toggleLegend = $("toggle-legend");
+  if (toggleLegend) {
+    toggleLegend.addEventListener("click", () => {
+      const legend = $("legend");
+      if (!legend) return;
+      legend.hidden = !legend.hidden;
+      toggleLegend.classList.toggle("active", !legend.hidden);
+      toggleLegend.setAttribute("aria-pressed", legend.hidden ? "false" : "true");
+    });
+  }
+
+  const toggleStats = $("toggle-stats");
+  if (toggleStats) {
+    toggleStats.addEventListener("click", () => {
+      const stats = $("stats-panel");
+      if (!stats) return;
+      const hide = !stats.hidden;
+      stats.hidden = hide;
+      if (!hide && stats.tagName === "DETAILS") stats.open = true;
+      toggleStats.classList.toggle("active", !hide);
+      toggleStats.setAttribute("aria-pressed", hide ? "false" : "true");
+    });
+  }
 
   const drop = $("drop");
   const file = $("file");
   function handleFile(f) {
     if (!f) return;
-    $("upload-status").textContent = `Selected “${f.name}” — prototype loads the path-planning demo method pack.`;
-    loadDemo().catch((err) => { $("upload-status").textContent = err.message; });
+    setText("upload-status", `Selected “${f.name}” — prototype loads the path-planning demo method pack.`);
+    loadDemo().catch((err) => { setText("upload-status", err.message); });
   }
-  file.addEventListener("change", () => handleFile(file.files[0]));
-  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("drag"); });
-  drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
-  drop.addEventListener("drop", (e) => {
-    e.preventDefault();
-    drop.classList.remove("drag");
-    handleFile(e.dataTransfer.files[0]);
-  });
+  if (file) file.addEventListener("change", () => handleFile(file.files[0]));
+  if (drop) {
+    drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("drag"); });
+    drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
+    drop.addEventListener("drop", (e) => {
+      e.preventDefault();
+      drop.classList.remove("drag");
+      handleFile(e.dataTransfer.files[0]);
+    });
+  }
 
   // Third-party simulation environments (future connectors — UI list only).
   const CONNECTORS = [
@@ -318,7 +433,8 @@
 
   const connectorsPanel = $("connectors-panel");
   const connectorList = $("connector-list");
-  connectorList.innerHTML = CONNECTORS.map((c) => `
+  if (connectorList) {
+    connectorList.innerHTML = CONNECTORS.map((c) => `
     <li>
       <div>
         <div class="name">${esc(c.name)}</div>
@@ -326,20 +442,30 @@
       </div>
       <div class="kind">${esc(c.kind)}</div>
     </li>`).join("");
+  }
 
   function openConnectors(open) {
+    if (!connectorsPanel) return;
     connectorsPanel.hidden = !open;
     connectorsPanel.setAttribute("aria-hidden", open ? "false" : "true");
-    $("connectors-btn").setAttribute("aria-expanded", open ? "true" : "false");
+    const btn = $("connectors-btn");
+    if (btn) btn.setAttribute("aria-expanded", open ? "true" : "false");
   }
-  $("connectors-btn").addEventListener("click", () => openConnectors(connectorsPanel.hidden));
-  $("connectors-close").addEventListener("click", () => openConnectors(false));
-  connectorsPanel.addEventListener("click", (e) => {
-    if (e.target === connectorsPanel) openConnectors(false);
-  });
+  const connectorsBtn = $("connectors-btn");
+  if (connectorsBtn) {
+    connectorsBtn.addEventListener("click", () => openConnectors(connectorsPanel ? connectorsPanel.hidden : true));
+  }
+  const connectorsClose = $("connectors-close");
+  if (connectorsClose) connectorsClose.addEventListener("click", () => openConnectors(false));
+  if (connectorsPanel) {
+    connectorsPanel.addEventListener("click", (e) => {
+      if (e.target === connectorsPanel) openConnectors(false);
+    });
+  }
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !connectorsPanel.hidden) openConnectors(false);
+    if (e.key === "Escape" && connectorsPanel && !connectorsPanel.hidden) openConnectors(false);
   });
 
+  updateRunTree();
   showStep("upload");
 })();

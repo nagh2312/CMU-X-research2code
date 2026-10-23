@@ -23,23 +23,211 @@ HTML = """<!DOCTYPE html>
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
-  <header class="top shell">
-    <div>
-      <p class="eyebrow">From paper to experiment</p>
-      <h1>Research to Simulation</h1>
-      <p class="lede">Upload a paper, see what can be simulated, then experiment with the method — not just read it.</p>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="brand">Research to Simulation</span>
+        <span class="proj-name" id="proj-name">Simulation Project</span>
+        <span class="badge-private">PRIVATE</span>
+      </div>
+      <div class="topbar-right">
+        <button type="button" class="tb-link" id="connectors-btn" aria-expanded="false" aria-controls="connectors-panel">Connectors</button>
+        <a class="tb-link" href="https://github.com/nagh2312/CMU-X-research2code/tree/research-to-simulation/Research%20to%20Simulation" target="_blank" rel="noopener">Docs</a>
+        <span class="tb-muted">Workbench</span>
+      </div>
+    </header>
+
+    <div class="toolbar" role="toolbar" aria-label="Viewport tools">
+      <div class="tool-group">
+        <span class="tool-label">Filters</span>
+        <button type="button" class="tool" title="Grid" data-tool="grid"><span class="ticon">▦</span><span>Grid</span></button>
+        <button type="button" class="tool" title="Path" data-tool="path"><span class="ticon">↗</span><span>Path</span></button>
+        <button type="button" class="tool" title="Expanded" data-tool="expanded"><span class="ticon">◉</span><span>Expanded</span></button>
+        <button type="button" class="tool" title="Obstacles" data-tool="obstacles"><span class="ticon">■</span><span>Obstacles</span></button>
+      </div>
+      <div class="tool-group">
+        <span class="tool-label">View</span>
+        <button type="button" class="tool" title="Legend" id="toggle-legend"><span class="ticon">▤</span><span>Legend</span></button>
+        <button type="button" class="tool" title="Statistics" id="toggle-stats"><span class="ticon">∑</span><span>Statistics</span></button>
+        <button type="button" class="tool" title="Inspect" data-tool="inspect"><span class="ticon">⌖</span><span>Inspect</span></button>
+      </div>
+      <div class="tool-group">
+        <span class="tool-label">Result</span>
+        <button type="button" class="tool primary-tool" id="run" title="Run scenario"><span class="ticon">▶</span><span>Run</span></button>
+        <button type="button" class="tool" id="reset" title="Reset scene"><span class="ticon">↺</span><span>Reset</span></button>
+        <button type="button" class="tool" data-go="results" title="Results"><span class="ticon">▣</span><span>Results</span></button>
+      </div>
     </div>
-    <div class="top-actions">
-      <button type="button" class="ghost connectors-btn" id="connectors-btn" aria-expanded="false" aria-controls="connectors-panel" title="Third-party simulation environments">
-        <svg class="plug-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M8 2v4M16 2v4M7 6h10v4a5 5 0 0 1-5 5h0a5 5 0 0 1-5-5V6z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 15v7M9 22h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-        Connectors
-      </button>
-      <a class="ghost" href="https://github.com/nagh2312/CMU-X-research2code/tree/research-to-simulation/Research%20to%20Simulation" target="_blank" rel="noopener">Prototype notes</a>
+
+    <div class="workbench">
+      <aside class="tree" aria-label="Project tree">
+        <div class="tree-section">
+          <button type="button" class="tree-h">Geometries</button>
+          <ul class="tree-list">
+            <li class="tree-item muted-item">Grid world <span class="count">1</span></li>
+          </ul>
+        </div>
+        <div class="tree-section">
+          <button type="button" class="tree-h">Workflow</button>
+          <ul class="tree-list" id="steps">
+            <li><button type="button" class="tree-item step active" data-step="upload">Paper upload</button></li>
+            <li><button type="button" class="tree-item step" data-step="understand" disabled>Method analysis</button></li>
+            <li><button type="button" class="tree-item step" data-step="simulate" disabled>Simulation</button></li>
+            <li><button type="button" class="tree-item step" data-step="results" disabled>Result control</button></li>
+          </ul>
+        </div>
+        <div class="tree-section">
+          <button type="button" class="tree-h">Simulation</button>
+          <ul class="tree-list" id="sim-tree">
+            <li class="tree-item nest">Scene
+              <ul>
+                <li>Start / goal</li>
+                <li>Obstacles</li>
+                <li>Move model <span class="pill-mini assume">assumption</span></li>
+              </ul>
+            </li>
+            <li class="tree-item nest">Numerics
+              <ul>
+                <li>Heuristic</li>
+                <li>Step cost</li>
+              </ul>
+            </li>
+            <li class="tree-item nest">Simulation runs
+              <ul id="run-tree">
+                <li class="muted-item">No runs yet</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="job-status">
+          <div class="job-title">Job status</div>
+          <div class="job-line" id="job-status">Idle — load a paper to begin</div>
+        </div>
+      </aside>
+
+      <main class="viewport">
+        <section id="panel-upload" class="panel panel-doc">
+          <div class="doc-card">
+            <h2>Upload research paper</h2>
+            <p class="muted">Drop a PDF that describes a model, algorithm, equations, or experimental setup. This prototype ships with a path-planning demo.</p>
+            <div class="drop" id="drop">
+              <p><b>Drop a PDF here</b> or choose a file</p>
+              <p class="muted">File is not sent to a server; the demo method pack is loaded.</p>
+              <input type="file" id="file" accept=".pdf,application/pdf">
+            </div>
+            <div class="row">
+              <button type="button" class="btn primary" id="use-demo">Use path-planning demo</button>
+              <span class="muted" id="upload-status">No paper loaded yet.</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="panel-understand" class="panel panel-doc" hidden>
+          <div class="doc-card">
+            <h2 id="method-title">Method</h2>
+            <p id="method-line"></p>
+            <p class="muted" id="method-paper"></p>
+          </div>
+          <div class="doc-grid3">
+            <div class="doc-card">
+              <h3>Can simulate</h3>
+              <ul id="list-yes"></ul>
+            </div>
+            <div class="doc-card warn">
+              <h3>Partial / ambiguous</h3>
+              <ul id="list-partial"></ul>
+            </div>
+            <div class="doc-card danger">
+              <h3>Missing from the paper</h3>
+              <ul id="list-missing"></ul>
+            </div>
+          </div>
+          <div class="doc-grid2">
+            <div class="doc-card">
+              <h3>Supported by the paper</h3>
+              <ul id="list-supported"></ul>
+            </div>
+            <div class="doc-card warn">
+              <h3>Assumptions for this simulation</h3>
+              <ul id="list-assumptions"></ul>
+            </div>
+          </div>
+          <div class="row">
+            <button type="button" class="btn primary" data-go="simulate">Open workbench simulation</button>
+          </div>
+        </section>
+
+        <section id="panel-simulate" class="panel panel-sim" hidden>
+          <div class="canvas-stage">
+            <div class="canvas-hint" id="sim-hint">Click free cell = start · Shift-click = goal · Alt-click = obstacle</div>
+            <canvas id="world" width="960" height="640" aria-label="Simulation grid"></canvas>
+            <div class="legend" id="legend">
+              <span><i class="sw start"></i> Start</span>
+              <span><i class="sw goal"></i> Goal</span>
+              <span><i class="sw obstacle"></i> Obstacle</span>
+              <span><i class="sw path"></i> Path</span>
+              <span><i class="sw expanded"></i> Expanded</span>
+            </div>
+            <div class="gizmo" aria-hidden="true">
+              <span class="gx">X</span><span class="gy">Y</span><span class="gz">grid</span>
+            </div>
+          </div>
+          <aside class="float-panels" id="float-panels">
+            <details class="fpanel" open>
+              <summary>Scene</summary>
+              <div class="fpanel-body">
+                <label>Heuristic
+                  <select id="heuristic">
+                    <option value="manhattan">Manhattan</option>
+                    <option value="euclidean">Euclidean</option>
+                    <option value="none">None (Dijkstra)</option>
+                  </select>
+                </label>
+                <label class="check"><input type="checkbox" id="diagonal"> Diagonal moves <span class="pill-mini assume">assumption</span></label>
+              </div>
+            </details>
+            <details class="fpanel" open id="stats-panel">
+              <summary>Statistics</summary>
+              <div class="fpanel-body">
+                <dl class="kv" id="run-stats">
+                  <dt>Status</dt><dd>—</dd>
+                </dl>
+              </div>
+            </details>
+          </aside>
+        </section>
+
+        <section id="panel-results" class="panel panel-doc" hidden>
+          <div class="doc-card">
+            <h2>Result interpretation</h2>
+            <p id="result-story"></p>
+          </div>
+          <div class="doc-grid2">
+            <div class="doc-card">
+              <h3>Tied to the paper</h3>
+              <ul id="result-supported"></ul>
+            </div>
+            <div class="doc-card warn">
+              <h3>Still assumptions</h3>
+              <ul id="result-assumptions"></ul>
+            </div>
+          </div>
+          <div class="doc-card">
+            <h3>Scenario history</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>#</th><th>Status</th><th>Path length</th><th>Expanded</th><th>Heuristic</th></tr></thead>
+                <tbody id="history"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="row">
+            <button type="button" class="btn primary" data-go="simulate">Return to viewport</button>
+          </div>
+        </section>
+      </main>
     </div>
-  </header>
+  </div>
 
   <div class="connectors-panel" id="connectors-panel" hidden>
     <div class="connectors-card">
@@ -47,146 +235,10 @@ HTML = """<!DOCTYPE html>
         <h2>Third-party connectors</h2>
         <button type="button" class="btn" id="connectors-close">Close</button>
       </div>
-      <p class="muted">Future scope: choose an external simulation environment and run or mirror the method there. Listing only for now — live APIs are not wired yet.</p>
+      <p class="muted">Future scope: connect out to external simulation environments. Listing only — APIs not wired yet.</p>
       <ul class="connector-list" id="connector-list"></ul>
-      <p class="muted">We can have options like this and simulate the environment in the connected tool.</p>
     </div>
   </div>
-
-  <nav class="steps shell" id="steps" aria-label="Workflow steps">
-    <button type="button" class="step active" data-step="upload">1. Upload</button>
-    <button type="button" class="step" data-step="understand">2. Understand</button>
-    <button type="button" class="step" data-step="simulate">3. Simulate</button>
-    <button type="button" class="step" data-step="results">4. Results</button>
-  </nav>
-
-  <main class="shell">
-    <section id="panel-upload" class="panel">
-      <div class="card highlight">
-        <h2>Upload a research paper</h2>
-        <p>Drop a PDF that describes a model, algorithm, equations, or experimental setup. This prototype ships with a path-planning demo so you can try the full loop without a live paper-ingest pipeline.</p>
-        <div class="drop" id="drop">
-          <p><b>Drop a PDF here</b> or choose a file</p>
-          <p class="muted">Prototype: file is not sent to a server; we load the demo method pack.</p>
-          <input type="file" id="file" accept=".pdf,application/pdf">
-        </div>
-        <div class="row">
-          <button type="button" class="btn primary" id="use-demo">Use path-planning demo</button>
-          <span class="muted" id="upload-status">No paper loaded yet.</span>
-        </div>
-      </div>
-    </section>
-
-    <section id="panel-understand" class="panel" hidden>
-      <div class="card highlight">
-        <h2 id="method-title">Method</h2>
-        <p id="method-line"></p>
-        <p class="muted" id="method-paper"></p>
-      </div>
-      <div class="grid3">
-        <div class="card">
-          <h3>Can simulate</h3>
-          <ul id="list-yes"></ul>
-        </div>
-        <div class="card warn">
-          <h3>Partial / ambiguous</h3>
-          <ul id="list-partial"></ul>
-        </div>
-        <div class="card danger">
-          <h3>Missing from the paper</h3>
-          <ul id="list-missing"></ul>
-        </div>
-      </div>
-      <div class="grid2">
-        <div class="card">
-          <h3>Supported by the paper</h3>
-          <ul id="list-supported"></ul>
-        </div>
-        <div class="card warn">
-          <h3>Assumptions for this simulation</h3>
-          <ul id="list-assumptions"></ul>
-        </div>
-      </div>
-      <div class="row">
-        <button type="button" class="btn primary" data-go="simulate">Open simulation environment</button>
-      </div>
-    </section>
-
-    <section id="panel-simulate" class="panel" hidden>
-      <div class="sim-layout">
-        <div class="card">
-          <h2>Interactive environment</h2>
-          <p class="muted">Click a free cell for <b>start</b>, Shift-click for <b>goal</b>, Alt-click to toggle an <b>obstacle</b>. Then run the planner.</p>
-          <canvas id="world" width="640" height="448" aria-label="Simulation grid"></canvas>
-          <div class="legend">
-            <span><i class="sw start"></i> Start</span>
-            <span><i class="sw goal"></i> Goal</span>
-            <span><i class="sw obstacle"></i> Obstacle</span>
-            <span><i class="sw path"></i> Path</span>
-            <span><i class="sw expanded"></i> Expanded</span>
-          </div>
-        </div>
-        <div class="side">
-          <div class="card">
-            <h3>Controls</h3>
-            <label>Heuristic
-              <select id="heuristic">
-                <option value="manhattan">Manhattan (paper-typical for grids)</option>
-                <option value="euclidean">Euclidean</option>
-                <option value="none">None (Dijkstra-style)</option>
-              </select>
-            </label>
-            <label class="check"><input type="checkbox" id="diagonal"> Allow diagonal moves <span class="pill assume">assumption</span></label>
-            <div class="row">
-              <button type="button" class="btn primary" id="run">Run scenario</button>
-              <button type="button" class="btn" id="reset">Reset scene</button>
-            </div>
-            <p class="muted" id="sim-hint"></p>
-          </div>
-          <div class="card">
-            <h3>Last run</h3>
-            <dl class="kv" id="run-stats">
-              <dt>Status</dt><dd>—</dd>
-            </dl>
-            <button type="button" class="btn" data-go="results">View explanation</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="panel-results" class="panel" hidden>
-      <div class="card highlight">
-        <h2>What the results mean</h2>
-        <p id="result-story"></p>
-      </div>
-      <div class="grid2">
-        <div class="card">
-          <h3>Tied to the paper</h3>
-          <ul id="result-supported"></ul>
-        </div>
-        <div class="card warn">
-          <h3>Still assumptions</h3>
-          <ul id="result-assumptions"></ul>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Scenario history</h3>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>#</th><th>Status</th><th>Path length</th><th>Expanded</th><th>Heuristic</th></tr></thead>
-            <tbody id="history"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="row">
-        <button type="button" class="btn primary" data-go="simulate">Try another scenario</button>
-      </div>
-    </section>
-  </main>
-
-  <footer class="foot shell">
-    <p>Prototype only. Faithful simulation needs enough detail in the paper; missing pieces are listed under assumptions. Port <b>8801</b>.</p>
-  </footer>
 
   <script src="/static/app.js"></script>
 </body>
