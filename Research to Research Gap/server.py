@@ -23,7 +23,7 @@ HTML = """<!DOCTYPE html>
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
-  <header class="top">
+  <header class="top shell">
     <div>
       <p class="eyebrow">Findings → gaps → next steps</p>
       <h1>Research to Research Gap</h1>
@@ -32,15 +32,17 @@ HTML = """<!DOCTYPE html>
     <a class="ghost" href="https://github.com/nagh2312/CMU-X-research2code/tree/research-to-research-gap/Research%20to%20Research%20Gap" target="_blank" rel="noopener">Prototype notes</a>
   </header>
 
-  <nav class="steps" id="steps">
-    <button type="button" class="step active" data-step="upload">1. Upload</button>
-    <button type="button" class="step" data-step="understand">2. Understand</button>
-    <button type="button" class="step" data-step="gaps">3. Gaps</button>
-    <button type="button" class="step" data-step="next">4. Next steps</button>
-    <button type="button" class="step" data-step="adjacency">5. Adjacency opportunity</button>
-  </nav>
+  <div class="shell">
+    <nav class="steps" id="steps" aria-label="Workflow steps">
+      <button type="button" class="step active" data-step="upload">1. Upload</button>
+      <button type="button" class="step" data-step="understand">2. Understand</button>
+      <button type="button" class="step" data-step="gaps">3. Gaps</button>
+      <button type="button" class="step" data-step="next">4. Next steps</button>
+      <button type="button" class="step" data-step="adjacency" title="Adjacency opportunity">5. Adjacency</button>
+    </nav>
+  </div>
 
-  <main>
+  <main class="shell">
     <section id="panel-upload" class="panel">
       <div class="card highlight">
         <h2>Upload a research paper</h2>
@@ -192,7 +194,7 @@ HTML = """<!DOCTYPE html>
     </section>
   </main>
 
-  <footer class="foot">
+  <footer class="foot shell">
     <p>Server port <b>8802</b> — separate from Research to Simulation (8801) and R2C output (8799). Prototype only.</p>
   </footer>
   <script src="/static/app.js"></script>
