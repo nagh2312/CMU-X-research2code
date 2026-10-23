@@ -1,8 +1,9 @@
-// Research to Research Gap — interactive demo UI.
+// Research to Research Gap — SimScale-style workbench UI.
 (function () {
   const state = {
     pack: null,
     unlocked: { understand: false, gaps: false, next: false, adjacency: false },
+    marketResult: null,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -18,17 +19,72 @@
     return String(s ?? "").replace(/[&<>"']/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
+  function setText(id, text) {
+    const el = $(id);
+    if (el) el.textContent = text;
+  }
   function list(el, items) {
+    if (!el) return;
     el.innerHTML = (items || []).map((t) => `<li>${esc(t)}</li>`).join("") || "<li class='muted'>None listed</li>";
   }
 
+  function jobStatusForStep(name) {
+    if (name === "upload") {
+      return state.pack ? "Paper loaded — review findings" : "Idle — load a paper to begin";
+    }
+    if (name === "understand") return "Findings ready — check gaps next";
+    if (name === "gaps") {
+      if (!state.pack) return "Load a paper to assess gaps";
+      return state.pack.gap_assessment?.has_clear_gap
+        ? "Clear gap supported by this paper"
+        : "No clear gap — do not invent one";
+    }
+    if (name === "next") return "Prioritized next steps ready";
+    if (name === "adjacency") {
+      if (state.marketResult) return `Market check: ${state.marketResult.verdict}`;
+      return "Adjacency & market sizing";
+    }
+    return "Idle — load a paper to begin";
+  }
+
+  function setJobStatus(text) {
+    setText("job-status", text);
+  }
+
   function showStep(name) {
-    Object.entries(panels).forEach(([k, el]) => { el.hidden = k !== name; });
+    Object.entries(panels).forEach(([k, el]) => {
+      if (el) el.hidden = k !== name;
+    });
     document.querySelectorAll(".step").forEach((btn) => {
       const s = btn.dataset.step;
       btn.classList.toggle("active", s === name);
       btn.disabled = s !== "upload" && !state.unlocked[s];
     });
+    setJobStatus(jobStatusForStep(name));
+  }
+
+  function updateGapTree(pack) {
+    const tree = $("gap-tree");
+    if (!tree) return;
+    const ga = pack.gap_assessment;
+    const gaps = ga.gaps || [];
+    const author = gaps.filter((g) => g.kind === "author_acknowledged").length;
+    const inferred = gaps.filter((g) => g.kind !== "author_acknowledged").length;
+    tree.innerHTML = `
+      <li>${ga.has_clear_gap ? "Clear gap found" : "No clear gap"}</li>
+      <li>${author} author-acknowledged</li>
+      <li>${inferred} inferred</li>`;
+  }
+
+  function updateMarketTree(result) {
+    const tree = $("market-tree");
+    if (!tree) return;
+    if (!result) {
+      tree.innerHTML = `<li class="muted-item">No check yet</li>`;
+      return;
+    }
+    tree.innerHTML = `<li>${esc(result.verdict)}</li>
+      <li>${result.errors} errors · ${result.warnings} warnings</li>`;
   }
 
   async function loadPack(filename, label) {
@@ -36,21 +92,26 @@
     if (!res.ok) throw new Error("Could not load demo");
     const pack = await res.json();
     state.pack = pack;
+    state.marketResult = null;
     state.unlocked = { understand: true, gaps: true, next: true, adjacency: true };
-    $("upload-status").textContent = `Loaded: ${label || pack.paper.name}`;
+    setText("upload-status", `Loaded: ${label || pack.paper.name}`);
+    setText("proj-name", pack.title || pack.paper?.name || "Gap analysis project");
+    setText("tree-paper", pack.paper?.name || "Paper loaded");
     fillUnderstand(pack);
     fillGaps(pack);
     fillNext(pack);
     fillAdjacency(pack);
+    updateGapTree(pack);
+    updateMarketTree(null);
     showStep("understand");
   }
 
   function fillUnderstand(pack) {
-    $("paper-title").textContent = pack.title;
-    $("paper-line").textContent = pack.paper.one_line;
-    $("paper-meta").textContent = `${pack.paper.name} · ${pack.paper.domain || ""}`;
-    $("rq").textContent = pack.established.research_question;
-    $("method").textContent = pack.established.methodology;
+    setText("paper-title", pack.title);
+    setText("paper-line", pack.paper.one_line);
+    setText("paper-meta", `${pack.paper.name} · ${pack.paper.domain || ""}`);
+    setText("rq", pack.established.research_question);
+    setText("method", pack.established.methodology);
     list($("findings"), pack.established.findings);
     list($("limitations"), pack.established.limitations);
     list($("conclusions"), pack.established.conclusions);
@@ -72,6 +133,7 @@
   function fillGaps(pack) {
     const ga = pack.gap_assessment;
     const verdict = $("gap-verdict");
+    if (!verdict) return;
     if (ga.has_clear_gap) {
       verdict.className = "card highlight";
       verdict.innerHTML = `<h2>Clear gap supported by this paper</h2><p>${esc(ga.summary)}</p>`;
@@ -84,18 +146,27 @@
 
     const author = (ga.gaps || []).filter((g) => g.kind === "author_acknowledged");
     const inferred = (ga.gaps || []).filter((g) => g.kind !== "author_acknowledged");
-    $("gaps-author").innerHTML = author.length
-      ? author.map(renderGap).join("")
-      : "<p class='muted'>None marked as explicitly acknowledged.</p>";
-    $("gaps-inferred").innerHTML = inferred.length
-      ? inferred.map(renderGap).join("")
-      : "<p class='muted'>None inferred — and we will not force one.</p>";
+    const gapsAuthor = $("gaps-author");
+    const gapsInferred = $("gaps-inferred");
+    if (gapsAuthor) {
+      gapsAuthor.innerHTML = author.length
+        ? author.map(renderGap).join("")
+        : "<p class='muted'>None marked as explicitly acknowledged.</p>";
+    }
+    if (gapsInferred) {
+      gapsInferred.innerHTML = inferred.length
+        ? inferred.map(renderGap).join("")
+        : "<p class='muted'>None inferred — and we will not force one.</p>";
+    }
 
-    $("future-work").innerHTML = (pack.author_future_work || []).map((fw) => `
+    const future = $("future-work");
+    if (future) {
+      future.innerHTML = (pack.author_future_work || []).map((fw) => `
       <div class="fw-item">
         <p><b>${esc(fw.text)}</b></p>
         <p class="muted">In practice: ${esc(fw.practical_meaning)}</p>
       </div>`).join("") || "<p class='muted'>No future-work statements in this pack.</p>";
+    }
 
     list($("bound-paper"), pack.evidence_boundaries.from_uploaded_paper);
     list($("bound-lit"), pack.evidence_boundaries.would_need_related_literature);
@@ -103,63 +174,74 @@
 
   function fillNext(pack) {
     const steps = [...(pack.next_steps || [])].sort((a, b) => a.priority - b.priority);
-    $("next-steps").innerHTML = steps.map((s) => {
-      const src = s.source === "author_acknowledged" ? '<span class="pill author">From acknowledged gap</span>'
-        : s.source === "author_future_work" ? '<span class="pill author">Author future work</span>'
-        : s.source === "inferred_from_paper" ? '<span class="pill inferred">Inferred</span>'
-        : '<span class="pill ext">Extension (not a forced gap)</span>';
-      const involves = (s.involves || []).map((x) => `<li>${esc(x)}</li>`).join("");
-      const exps = (s.suggested_experiments || []).map((x) => `<li>${esc(x)}</li>`).join("");
-      return `<div class="card step-item">
-        <p class="priority">Priority ${esc(s.priority)}</p>
-        <h3>${esc(s.title)} ${src}</h3>
-        <p><b>What it involves</b></p><ul>${involves}</ul>
-        <p><b>Could help establish:</b> ${esc(s.would_help_establish)}</p>
-        ${exps ? `<p><b>Suggested experiments</b></p><ul>${exps}</ul>` : ""}
-        ${s.needs_literature ? `<p class="muted"><b>Literature needed:</b> ${esc(s.literature_note || "Related work beyond this paper.")}</p>` : ""}
-      </div>`;
-    }).join("");
+    const nextEl = $("next-steps");
+    if (nextEl) {
+      nextEl.innerHTML = steps.map((s) => {
+        const src = s.source === "author_acknowledged" ? '<span class="pill author">From acknowledged gap</span>'
+          : s.source === "author_future_work" ? '<span class="pill author">Author future work</span>'
+          : s.source === "inferred_from_paper" ? '<span class="pill inferred">Inferred</span>'
+          : '<span class="pill ext">Extension (not a forced gap)</span>';
+        const involves = (s.involves || []).map((x) => `<li>${esc(x)}</li>`).join("");
+        const exps = (s.suggested_experiments || []).map((x) => `<li>${esc(x)}</li>`).join("");
+        return `<div class="card step-item">
+          <p class="priority">Priority ${esc(s.priority)}</p>
+          <h3>${esc(s.title)} ${src}</h3>
+          <p><b>What it involves</b></p><ul>${involves}</ul>
+          <p><b>Could help establish:</b> ${esc(s.would_help_establish)}</p>
+          ${exps ? `<p><b>Suggested experiments</b></p><ul>${exps}</ul>` : ""}
+          ${s.needs_literature ? `<p class="muted"><b>Literature needed:</b> ${esc(s.literature_note || "Related work beyond this paper.")}</p>` : ""}
+        </div>`;
+      }).join("");
+    }
 
     const alt = pack.no_gap_alternative;
     const box = $("no-gap-box");
-    if (!pack.gap_assessment.has_clear_gap && alt) {
-      box.hidden = false;
-      $("no-gap-when").textContent = alt.when_to_use || "";
-      list($("no-gap-suggestions"), alt.suggestions);
-    } else {
-      box.hidden = true;
+    if (box) {
+      if (!pack.gap_assessment.has_clear_gap && alt) {
+        box.hidden = false;
+        setText("no-gap-when", alt.when_to_use || "");
+        list($("no-gap-suggestions"), alt.suggestions);
+      } else {
+        box.hidden = true;
+      }
     }
   }
 
   function fillAdjacency(pack) {
     const adj = pack.adjacency || {};
-    $("adj-anchor").textContent = adj.topic_anchor
-      ? `Topic anchor: ${adj.topic_anchor}` : "";
-    $("adj-rule").textContent = adj.stay_close_rule || "";
-    $("adj-list").innerHTML = (adj.opportunities || []).map((o) => {
-      const dist = o.distance === "very_close" ? "Very close"
-        : o.distance === "close" ? "Close"
-        : o.distance === "far" ? "Far / out of scope" : esc(o.distance || "");
-      const pillCls = o.distance === "far" ? "ext" : "author";
-      const explore = (o.explore || []).map((x) => `<li>${esc(x)}</li>`).join("");
-      return `<div class="card">
-        <h3>${esc(o.title)} <span class="pill ${pillCls}">${esc(dist)}</span></h3>
-        <p>${esc(o.why_adjacent)}</p>
-        ${explore ? `<p class="muted"><b>Explore</b></p><ul>${explore}</ul>` : ""}
-      </div>`;
-    }).join("") || "<p class='muted'>No adjacency opportunities in this pack.</p>";
+    setText("adj-anchor", adj.topic_anchor ? `Topic anchor: ${adj.topic_anchor}` : "");
+    setText("adj-rule", adj.stay_close_rule || "");
+    const adjList = $("adj-list");
+    if (adjList) {
+      adjList.innerHTML = (adj.opportunities || []).map((o) => {
+        const dist = o.distance === "very_close" ? "Very close"
+          : o.distance === "close" ? "Close"
+          : o.distance === "far" ? "Far / out of scope" : esc(o.distance || "");
+        const pillCls = o.distance === "far" ? "ext" : "author";
+        const explore = (o.explore || []).map((x) => `<li>${esc(x)}</li>`).join("");
+        return `<div class="card">
+          <h3>${esc(o.title)} <span class="pill ${pillCls}">${esc(dist)}</span></h3>
+          <p>${esc(o.why_adjacent)}</p>
+          ${explore ? `<p class="muted"><b>Explore</b></p><ul>${explore}</ul>` : ""}
+        </div>`;
+      }).join("") || "<p class='muted'>No adjacency opportunities in this pack.</p>";
+    }
 
     const m = adj.market || {};
-    $("market-context").textContent = m.context || "";
+    setText("market-context", m.context || "");
     const defs = m.definitions || {};
-    $("market-defs").innerHTML = ["TAM", "SAM", "SOM"].map((k) => `
+    const marketDefs = $("market-defs");
+    if (marketDefs) {
+      marketDefs.innerHTML = ["TAM", "SAM", "SOM"].map((k) => `
       <div class="card def-card">
         <h3>${k}</h3>
         <p>${esc(defs[k] || "")}</p>
       </div>`).join("");
+    }
     list($("market-how"), m.how_calculated);
     state.marketDefaults = m.demo_defaults || null;
-    $("m-result").hidden = true;
+    const result = $("m-result");
+    if (result) result.hidden = true;
   }
 
   // Client-side mirror of analyze.check_market_credibility (keeps UI offline).
@@ -232,34 +314,38 @@
 
   function readMarketForm() {
     return {
-      currency: $("m-currency").value,
-      year: $("m-year").value,
-      method: $("m-method").value,
-      tam: $("m-tam").value,
-      sam: $("m-sam").value,
-      som: $("m-som").value,
-      tam_source: $("m-tam-src").value,
-      sam_source: $("m-sam-src").value,
-      som_source: $("m-som-src").value,
+      currency: $("m-currency")?.value,
+      year: $("m-year")?.value,
+      method: $("m-method")?.value,
+      tam: $("m-tam")?.value,
+      sam: $("m-sam")?.value,
+      som: $("m-som")?.value,
+      tam_source: $("m-tam-src")?.value,
+      sam_source: $("m-sam-src")?.value,
+      som_source: $("m-som-src")?.value,
     };
   }
 
   function fillMarketDefaults() {
     const d = state.marketDefaults;
     if (!d) return;
-    $("m-currency").value = d.currency || "USD";
-    $("m-year").value = d.year || 2024;
-    $("m-method").value = d.method || "top_down";
-    $("m-tam").value = d.tam ?? "";
-    $("m-sam").value = d.sam ?? "";
-    $("m-som").value = d.som ?? "";
-    $("m-tam-src").value = d.tam_source || "";
-    $("m-sam-src").value = d.sam_source || "";
-    $("m-som-src").value = d.som_source || "";
+    if ($("m-currency")) $("m-currency").value = d.currency || "USD";
+    if ($("m-year")) $("m-year").value = d.year || 2024;
+    if ($("m-method")) $("m-method").value = d.method || "top_down";
+    if ($("m-tam")) $("m-tam").value = d.tam ?? "";
+    if ($("m-sam")) $("m-sam").value = d.sam ?? "";
+    if ($("m-som")) $("m-som").value = d.som ?? "";
+    if ($("m-tam-src")) $("m-tam-src").value = d.tam_source || "";
+    if ($("m-sam-src")) $("m-sam-src").value = d.sam_source || "";
+    if ($("m-som-src")) $("m-som-src").value = d.som_source || "";
   }
 
   function showCredibility(result) {
     const el = $("m-result");
+    if (!el) return;
+    state.marketResult = result;
+    updateMarketTree(result);
+    setJobStatus(`Market check: ${result.verdict}`);
     el.hidden = false;
     const cls = result.errors ? "cred-bad" : result.warnings ? "cred-warn" : "cred-ok";
     el.className = `cred-result ${cls}`;
@@ -271,42 +357,66 @@
       ${notes ? `<p class="muted"><b>Notes</b></p><ul>${notes}</ul>` : ""}`;
   }
 
+  function runMarketCheck() {
+    showStep("adjacency");
+    showCredibility(checkMarketCredibility(readMarketForm()));
+  }
+
   document.querySelectorAll(".step").forEach((btn) => {
     btn.addEventListener("click", () => { if (!btn.disabled) showStep(btn.dataset.step); });
   });
   document.querySelectorAll("[data-go]").forEach((btn) => {
-    btn.addEventListener("click", () => showStep(btn.dataset.go));
-  });
-  $("m-check").addEventListener("click", () => showCredibility(checkMarketCredibility(readMarketForm())));
-  $("m-fill-demo").addEventListener("click", () => {
-    fillMarketDefaults();
-    showCredibility(checkMarketCredibility(readMarketForm()));
+    btn.addEventListener("click", () => {
+      const step = btn.dataset.go;
+      if (step !== "upload" && !state.unlocked[step]) return;
+      showStep(step);
+    });
   });
 
-  $("use-demo").addEventListener("click", () =>
-    loadPack("autonomous_driving_detection.json", "autonomous-driving demo")
-      .catch((e) => { $("upload-status").textContent = e.message; }));
-  $("use-closed").addEventListener("click", () =>
-    loadPack("paper_already_closed.json", "no-clear-gap demo")
-      .catch((e) => { $("upload-status").textContent = e.message; }));
+  const mCheck = $("m-check");
+  if (mCheck) mCheck.addEventListener("click", () => showCredibility(checkMarketCredibility(readMarketForm())));
+  const mCheckTb = $("m-check-toolbar");
+  if (mCheckTb) mCheckTb.addEventListener("click", runMarketCheck);
+  const mFill = $("m-fill-demo");
+  if (mFill) {
+    mFill.addEventListener("click", () => {
+      fillMarketDefaults();
+      showCredibility(checkMarketCredibility(readMarketForm()));
+    });
+  }
+
+  const useDemo = $("use-demo");
+  if (useDemo) {
+    useDemo.addEventListener("click", () =>
+      loadPack("autonomous_driving_detection.json", "autonomous-driving demo")
+        .catch((e) => { setText("upload-status", e.message); }));
+  }
+  const useClosed = $("use-closed");
+  if (useClosed) {
+    useClosed.addEventListener("click", () =>
+      loadPack("paper_already_closed.json", "no-clear-gap demo")
+        .catch((e) => { setText("upload-status", e.message); }));
+  }
 
   const drop = $("drop");
   const file = $("file");
   function handleFile(f) {
     if (!f) return;
-    $("upload-status").textContent = `Selected “${f.name}” — loading autonomous-driving demo pack.`;
+    setText("upload-status", `Selected “${f.name}” — loading autonomous-driving demo pack.`);
     loadPack("autonomous_driving_detection.json").catch((e) => {
-      $("upload-status").textContent = e.message;
+      setText("upload-status", e.message);
     });
   }
-  file.addEventListener("change", () => handleFile(file.files[0]));
-  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("drag"); });
-  drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
-  drop.addEventListener("drop", (e) => {
-    e.preventDefault();
-    drop.classList.remove("drag");
-    handleFile(e.dataTransfer.files[0]);
-  });
+  if (file) file.addEventListener("change", () => handleFile(file.files[0]));
+  if (drop) {
+    drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("drag"); });
+    drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
+    drop.addEventListener("drop", (e) => {
+      e.preventDefault();
+      drop.classList.remove("drag");
+      handleFile(e.dataTransfer.files[0]);
+    });
+  }
 
   showStep("upload");
 })();
