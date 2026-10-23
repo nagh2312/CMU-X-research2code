@@ -25,9 +25,23 @@ Researchers describe a model, algorithm, or system in a paper, but understanding
 ```bash
 cd "Research to Simulation"
 python3 server.py
+# default port 8801
 ```
 
 Open **http://127.0.0.1:8801/**
+
+### Keep the two products on different servers
+
+| Product | Server | URL |
+|---------|--------|-----|
+| **Research to Simulation** (this branch) | `Research to Simulation/server.py` | **http://127.0.0.1:8801/** |
+| **R2C output screen** (Code / Dataset / Experiment / … tabs) | `scripts/r2c_watch.py` | **http://127.0.0.1:8799/run/terra-medium** |
+
+Do not run both on the same port. Example for the R2C output demo:
+
+```bash
+python3 scripts/r2c_watch.py --runs-root /tmp/r2c-demo-runs --port 8799
+```
 
 Use **Use path-planning demo** (or drop a PDF — the prototype loads the demo method pack) to walk through Upload → Understand → Simulate → Results.
 
