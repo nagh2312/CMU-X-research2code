@@ -1,5 +1,7 @@
 # Research to Simulation
 
+> Branch-level overview: see the repo root [`README.md`](../README.md) on branch `research-to-simulation`.
+
 Turn a research paper's method into an **interactive simulation** you can experiment with — a different product surface from Research2Code's code / dataset / evidence tabs.
 
 ## Idea
