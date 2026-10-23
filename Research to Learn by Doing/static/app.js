@@ -1,9 +1,9 @@
-// Research to Learn by Doing — guided exercise UI + course connectors.
+// Research to Learn by Doing — SimScale-style workbench + Coursera connector.
 (function () {
   const state = {
     pack: null,
     unlocked: { method: false, exercise: false, try: false, explain: false, challenge: false },
-    features: {}, // sampleId -> [brightness, edges]
+    features: {},
     lastRun: null,
   };
 
@@ -21,18 +21,43 @@
     return String(s ?? "").replace(/[&<>"']/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
+  function setText(id, text) {
+    const el = $(id);
+    if (el) el.textContent = text;
+  }
   function list(el, items) {
+    if (!el) return;
     el.innerHTML = (items || []).map((t) => `<li>${esc(t)}</li>`).join("")
       || "<li class='muted'>None listed</li>";
   }
 
+  function jobStatusForStep(name) {
+    if (name === "upload") {
+      return state.pack ? "Paper loaded — open Method" : "Idle — load a paper to begin";
+    }
+    if (name === "method") return "Method ready — see the exercise";
+    if (name === "exercise") return "Exercise defined — try it yourself";
+    if (name === "try") {
+      if (state.lastRun) {
+        return `Run done — ${state.lastRun.correct}/${state.lastRun.total} correct`;
+      }
+      return "Ready to classify samples";
+    }
+    if (name === "explain") return "Results explained — take the challenge";
+    if (name === "challenge") return "Challenge open — flip a boundary";
+    return "Idle — load a paper to begin";
+  }
+
   function showStep(name) {
-    Object.entries(panels).forEach(([k, el]) => { el.hidden = k !== name; });
+    Object.entries(panels).forEach(([k, el]) => {
+      if (el) el.hidden = k !== name;
+    });
     document.querySelectorAll(".step").forEach((btn) => {
       const s = btn.dataset.step;
       btn.classList.toggle("active", s === name);
       btn.disabled = s !== "upload" && !state.unlocked[s];
     });
+    setText("job-status", jobStatusForStep(name));
     if (name === "try") {
       renderSamples();
       drawMap();
@@ -63,7 +88,9 @@
     state.features = {};
     pack.exercise.samples.forEach((s) => { state.features[s.id] = s.features.slice(); });
     state.lastRun = null;
-    $("upload-status").textContent = `Loaded: ${label || pack.paper.name}`;
+    setText("upload-status", `Loaded: ${label || pack.paper.name}`);
+    setText("proj-name", pack.title || pack.paper?.name || "Learning project");
+    setText("tree-paper", pack.paper?.name || "Paper loaded");
     fillMethod(pack);
     fillExercise(pack);
     fillExplain(pack);
@@ -72,46 +99,54 @@
   }
 
   function fillMethod(pack) {
-    $("lesson-title").textContent = pack.title;
-    $("lesson-line").textContent = pack.paper.one_line;
-    $("lesson-paper").textContent = `${pack.paper.name} · ${pack.paper.domain || ""}`;
-    $("core-did").textContent = pack.core_method.what_they_did;
-    $("core-inputs").textContent = pack.core_method.inputs;
-    $("core-how").textContent = pack.core_method.how_results;
+    setText("lesson-title", pack.title);
+    setText("lesson-line", pack.paper.one_line);
+    setText("lesson-paper", `${pack.paper.name} · ${pack.paper.domain || ""}`);
+    setText("core-did", pack.core_method.what_they_did);
+    setText("core-inputs", pack.core_method.inputs);
+    setText("core-how", pack.core_method.how_results);
     list($("core-from"), pack.core_method.from_paper);
     list($("simplifications"), pack.teaching_simplifications);
   }
 
   function fillExercise(pack) {
-    $("ex-goal").textContent = pack.exercise.goal;
-    $("ex-steps").innerHTML = (pack.exercise.steps || [])
-      .map((s) => `<li>${esc(s)}</li>`).join("");
-    $("prototypes").innerHTML = pack.exercise.classes.map((c) => `
+    setText("ex-goal", pack.exercise.goal);
+    const steps = $("ex-steps");
+    if (steps) {
+      steps.innerHTML = (pack.exercise.steps || []).map((s) => `<li>${esc(s)}</li>`).join("");
+    }
+    const proto = $("prototypes");
+    if (proto) {
+      proto.innerHTML = pack.exercise.classes.map((c) => `
       <div class="proto">
         <div class="swatch" style="background:${esc(c.color)}"></div>
         <b>${esc(c.id)}: ${esc(c.name)}</b>
         <p class="muted">Prototype [${c.prototype[0]}, ${c.prototype[1]}]</p>
       </div>`).join("");
+    }
   }
 
   function fillExplain(pack) {
-    $("explain-after").textContent = pack.explanations.after_run;
-    $("explain-mistakes").textContent = pack.explanations.mistakes;
-    $("explain-paper").textContent = pack.explanations.paper_link;
+    setText("explain-after", pack.explanations.after_run);
+    setText("explain-mistakes", pack.explanations.mistakes);
+    setText("explain-paper", pack.explanations.paper_link);
     list($("bound-paper"), pack.evidence_boundaries.from_paper);
     list($("bound-simple"), pack.evidence_boundaries.simplified_for_teaching);
   }
 
   function fillChallenge(pack) {
     const ch = pack.challenge;
-    $("chal-title").textContent = ch.title;
-    $("chal-prompt").textContent = ch.prompt;
-    $("chal-success-text").textContent = ch.success;
-    $("chal-success").hidden = true;
-    $("chal-status").textContent = "";
+    setText("chal-title", ch.title);
+    setText("chal-prompt", ch.prompt);
+    setText("chal-success-text", ch.success);
+    const success = $("chal-success");
+    if (success) success.hidden = true;
+    setText("chal-status", "");
     const s = pack.exercise.samples.find((x) => x.id === ch.sample_id);
     const feats = state.features[ch.sample_id] || (s ? s.features.slice() : [5, 5]);
-    $("chal-controls").innerHTML = `
+    const controls = $("chal-controls");
+    if (!controls) return;
+    controls.innerHTML = `
       <p class="muted">Sample <b>${esc(ch.sample_id)}</b> · true label <b>${esc(s?.label || "?")}</b></p>
       <div class="chal-sliders">
         <label>Brightness <span id="chal-b-val">${feats[0].toFixed(1)}</span>
@@ -123,8 +158,8 @@
       </div>`;
     const sync = () => {
       const b = Number($("chal-b").value), e = Number($("chal-e").value);
-      $("chal-b-val").textContent = b.toFixed(1);
-      $("chal-e-val").textContent = e.toFixed(1);
+      setText("chal-b-val", b.toFixed(1));
+      setText("chal-e-val", e.toFixed(1));
       state.features[ch.sample_id] = [b, e];
     };
     $("chal-b").oninput = sync;
@@ -135,7 +170,9 @@
     const pack = state.pack;
     if (!pack) return;
     const run = state.lastRun;
-    $("samples").innerHTML = pack.exercise.samples.map((s) => {
+    const samples = $("samples");
+    if (!samples) return;
+    samples.innerHTML = pack.exercise.samples.map((s) => {
       const feats = state.features[s.id] || s.features;
       const row = run?.rows?.find((r) => r.id === s.id);
       let badge = `<span class="badge wait">Not run</span>`;
@@ -158,7 +195,7 @@
         <p class="muted">${esc(s.hint || "")}</p>
       </div>`;
     }).join("");
-    $("samples").querySelectorAll("input").forEach((inp) => {
+    samples.querySelectorAll("input").forEach((inp) => {
       inp.addEventListener("change", () => {
         const card = inp.closest("[data-sid]");
         const id = card.dataset.sid;
@@ -168,7 +205,8 @@
         state.features[id] = state.features[id] || [0, 0];
         state.features[id][i] = v;
         state.lastRun = null;
-        $("score-line").textContent = "Features changed — run again.";
+        setText("score-line", "Features changed — run again.");
+        setText("job-status", "Ready to classify samples");
         drawMap();
       });
     });
@@ -176,7 +214,12 @@
 
   function runClassification() {
     const pack = state.pack;
-    if (!pack) return;
+    if (!pack) {
+      setText("job-status", "Load a paper first — then Run");
+      showStep("upload");
+      return;
+    }
+    showStep("try");
     const classes = pack.exercise.classes;
     const rows = pack.exercise.samples.map((s) => {
       const feats = state.features[s.id] || s.features;
@@ -191,8 +234,9 @@
     });
     const correct = rows.filter((r) => r.correct).length;
     state.lastRun = { rows, correct, total: rows.length, accuracy: correct / rows.length };
-    $("score-line").textContent =
-      `${correct} / ${rows.length} correct (${(100 * state.lastRun.accuracy).toFixed(0)}%)`;
+    setText("score-line",
+      `${correct} / ${rows.length} correct (${(100 * state.lastRun.accuracy).toFixed(0)}%)`);
+    setText("job-status", `Run done — ${correct}/${rows.length} correct`);
     renderSamples();
     drawMap();
   }
@@ -203,14 +247,14 @@
     if (!canvas || !pack) return;
     const ctx = canvas.getContext("2d");
     const W = canvas.width, H = canvas.height, pad = 28;
-    ctx.fillStyle = "#0b1220";
+    ctx.fillStyle = "#1f2428";
     ctx.fillRect(0, 0, W, H);
-    ctx.strokeStyle = "#374151";
+    ctx.strokeStyle = "#667085";
     ctx.beginPath();
     ctx.moveTo(pad, H - pad); ctx.lineTo(W - pad, H - pad);
     ctx.moveTo(pad, pad); ctx.lineTo(pad, H - pad);
     ctx.stroke();
-    ctx.fillStyle = "#9ca3af";
+    ctx.fillStyle = "#98a2b3";
     ctx.font = "11px sans-serif";
     ctx.fillText("brightness →", W / 2 - 30, H - 8);
     ctx.save();
@@ -238,40 +282,60 @@
       const feats = state.features[s.id] || s.features;
       const [x, y] = toXY(feats);
       const row = state.lastRun?.rows?.find((r) => r.id === s.id);
-      ctx.fillStyle = row ? (row.correct ? "#22c55e" : "#ef4444") : "#93c5fd";
+      ctx.fillStyle = row ? (row.correct ? "#12b76a" : "#f04438") : "#2e90fa";
       ctx.beginPath();
       ctx.arc(x, y, 5, 0, Math.PI * 2);
       ctx.fill();
     });
   }
 
-  // --- Connectors (course platforms) ---
+  // --- Hierarchical connectors (Coursera opens demo page) ---
   const CONNECTORS = [
-    { name: "Coursera", kind: "University & industry courses" },
-    { name: "edX", kind: "University MOOCs" },
-    { name: "Udacity", kind: "Nanodegrees & tech skills" },
-    { name: "Khan Academy", kind: "Free foundations" },
-    { name: "DeepLearning.AI", kind: "ML / DL specializations" },
-    { name: "Udemy", kind: "Practical skill courses" },
-    { name: "LinkedIn Learning", kind: "Professional skills" },
-    { name: "MIT OpenCourseWare", kind: "Free MIT course materials" },
-    { name: "YouTube Learning", kind: "Video lectures & playlists" },
-    { name: "Fast.ai", kind: "Practical deep learning" },
-    { name: "Kaggle Learn", kind: "Short ML micro-courses" },
-    { name: "Google Skills / Cloud Skills Boost", kind: "Cloud & ML labs" },
+    {
+      group: "Learning platforms",
+      items: [
+        { name: "Coursera", kind: "University & industry courses", id: "coursera", live: true },
+        { name: "edX", kind: "University MOOCs", soon: true },
+        { name: "Udacity", kind: "Nanodegrees & tech skills", soon: true },
+        { name: "Khan Academy", kind: "Free foundations", soon: true },
+        { name: "DeepLearning.AI", kind: "ML / DL specializations", soon: true },
+        { name: "Udemy", kind: "Practical skill courses", soon: true },
+        { name: "LinkedIn Learning", kind: "Professional skills", soon: true },
+        { name: "MIT OpenCourseWare", kind: "Free MIT course materials", soon: true },
+        { name: "YouTube Learning", kind: "Video lectures & playlists", soon: true },
+        { name: "Fast.ai", kind: "Practical deep learning", soon: true },
+        { name: "Kaggle Learn", kind: "Short ML micro-courses", soon: true },
+        { name: "Google Skills / Cloud Skills Boost", kind: "Cloud & ML labs", soon: true },
+      ],
+    },
   ];
 
   const connectorsPanel = $("connectors-panel");
   const connectorList = $("connector-list");
   if (connectorList) {
-    connectorList.innerHTML = CONNECTORS.map((c) => `
+    connectorList.innerHTML = CONNECTORS.map((g) => `
       <li>
-        <div>
-          <div class="name">${esc(c.name)}</div>
-          <span class="soon">Coming later</span>
-        </div>
-        <div class="kind">${esc(c.kind)}</div>
+        <div class="connector-group">${esc(g.group)}</div>
+        <ul>
+          ${g.items.map((c) => `
+            <li>
+              <button type="button" class="open-platform" data-platform="${esc(c.id || "")}" ${c.soon ? "disabled" : ""}>
+                <div class="name">${esc(c.name)}</div>
+                ${c.live ? '<span class="live">Open demo</span>' : '<span class="soon">Coming later</span>'}
+              </button>
+              <div class="kind">${esc(c.kind)}</div>
+            </li>`).join("")}
+        </ul>
       </li>`).join("");
+    connectorList.querySelectorAll(".open-platform").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.platform;
+        if (id === "coursera") {
+          openConnectors(false);
+          window.location.href = "/coursera";
+        }
+      });
+    });
   }
 
   function openConnectors(open) {
@@ -281,23 +345,34 @@
     $("connectors-btn")?.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
+  function goCoursera() {
+    window.location.href = "/coursera";
+  }
+
   document.querySelectorAll(".step").forEach((btn) => {
     btn.addEventListener("click", () => { if (!btn.disabled) showStep(btn.dataset.step); });
   });
   document.querySelectorAll("[data-go]").forEach((btn) => {
-    btn.addEventListener("click", () => showStep(btn.dataset.go));
+    btn.addEventListener("click", () => {
+      const step = btn.dataset.go;
+      if (step !== "upload" && !state.unlocked[step]) return;
+      showStep(step);
+    });
   });
 
-  $("use-demo").addEventListener("click", () =>
+  $("use-demo")?.addEventListener("click", () =>
     loadPack("image_classification_lesson.json", "image-classification lesson")
-      .catch((e) => { $("upload-status").textContent = e.message; }));
+      .catch((e) => { setText("upload-status", e.message); }));
 
   $("run-cls")?.addEventListener("click", runClassification);
+  $("run-cls-panel")?.addEventListener("click", runClassification);
   $("reset-samples")?.addEventListener("click", () => {
     if (!state.pack) return;
     state.pack.exercise.samples.forEach((s) => { state.features[s.id] = s.features.slice(); });
     state.lastRun = null;
-    $("score-line").textContent = "Reset. Run classification again.";
+    setText("score-line", "Reset. Run classification again.");
+    setText("job-status", "Ready to classify samples");
+    showStep("try");
     renderSamples();
     drawMap();
   });
@@ -310,10 +385,11 @@
     const feats = state.features[id] || s.features;
     const pred = predict(feats, pack.exercise.classes);
     const flipped = pred.predicted !== s.label;
-    $("chal-status").textContent =
+    setText("chal-status",
       `Predicted ${pred.predicted} (${pred.name}) · distance ${pred.distance.toFixed(2)}`
-      + (flipped ? " · boundary crossed!" : " · still same as true label — keep moving.");
-    $("chal-success").hidden = !flipped;
+      + (flipped ? " · boundary crossed!" : " · still same as true label — keep moving."));
+    const success = $("chal-success");
+    if (success) success.hidden = !flipped;
   });
 
   $("connectors-btn")?.addEventListener("click", () => openConnectors(connectorsPanel.hidden));
@@ -324,14 +400,16 @@
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && connectorsPanel && !connectorsPanel.hidden) openConnectors(false);
   });
+  $("tree-coursera")?.addEventListener("click", goCoursera);
+  $("open-coursera-tool")?.addEventListener("click", goCoursera);
 
   const drop = $("drop");
   const file = $("file");
   function handleFile(f) {
     if (!f) return;
-    $("upload-status").textContent = `Selected “${f.name}” — loading image-classification lesson.`;
+    setText("upload-status", `Selected “${f.name}” — loading image-classification lesson.`);
     loadPack("image_classification_lesson.json").catch((e) => {
-      $("upload-status").textContent = e.message;
+      setText("upload-status", e.message);
     });
   }
   file?.addEventListener("change", () => handleFile(file.files[0]));

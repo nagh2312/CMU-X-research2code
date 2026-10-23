@@ -1,0 +1,164 @@
+{
+  "platform": "Coursera",
+  "topic": "Image classification & computer vision",
+  "topic_from_paper": "CNN image classification (demo lesson)",
+  "hero": {
+    "title": "Learn image classification by doing",
+    "subtitle": "Courses, videos, articles, and journals matched to your Research to Learn by Doing lesson — illustrative Coursera-style demo (not affiliated with Coursera)."
+  },
+  "courses": [
+    {
+      "id": "c1",
+      "partner": "DeepLearning.AI",
+      "title": "Convolutional Neural Networks",
+      "level": "Intermediate",
+      "rating": 4.9,
+      "reviews": "48k",
+      "duration": "Approx. 20 hours",
+      "type": "Course",
+      "tag": "Most popular",
+      "color": "#0056D2",
+      "url": "https://www.coursera.org/learn/convolutional-neural-networks"
+    },
+    {
+      "id": "c2",
+      "partner": "Stanford University",
+      "title": "Machine Learning",
+      "level": "Beginner",
+      "rating": 4.9,
+      "reviews": "180k",
+      "duration": "Approx. 61 hours",
+      "type": "Course",
+      "tag": "Beginner friendly",
+      "color": "#8C1515",
+      "url": "https://www.coursera.org/learn/machine-learning"
+    },
+    {
+      "id": "c3",
+      "partner": "University of Alberta",
+      "title": "Fundamentals of Reinforcement Learning",
+      "level": "Intermediate",
+      "rating": 4.8,
+      "reviews": "12k",
+      "duration": "Approx. 15 hours",
+      "type": "Course",
+      "tag": "Related skill",
+      "color": "#007C41",
+      "url": "https://www.coursera.org/learn/fundamentals-of-reinforcement-learning"
+    },
+    {
+      "id": "c4",
+      "partner": "IBM",
+      "title": "Introduction to Computer Vision and Image Processing",
+      "level": "Beginner",
+      "rating": 4.6,
+      "reviews": "3.2k",
+      "duration": "Approx. 12 hours",
+      "type": "Course",
+      "tag": "Hands-on",
+      "color": "#054ADA",
+      "url": "https://www.coursera.org/learn/introduction-computer-vision-ibm"
+    }
+  ],
+  "videos": [
+    {
+      "id": "v1",
+      "title": "What is image classification?",
+      "channel": "Lesson companion (demo)",
+      "duration": "8:24",
+      "blurb": "Map pixels → class labels; accuracy and mistakes — mirrors this prototype’s nearest-prototype exercise.",
+      "url": "https://www.youtube.com/results?search_query=image+classification+explained"
+    },
+    {
+      "id": "v2",
+      "title": "CNNs for beginners",
+      "channel": "DeepLearning.AI style demo",
+      "duration": "14:02",
+      "blurb": "Convolutions, feature maps, and why edges/brightness matter — ties to our 2D feature map.",
+      "url": "https://www.youtube.com/results?search_query=cnn+image+classification+beginners"
+    },
+    {
+      "id": "v3",
+      "title": "Nearest neighbors & decision boundaries",
+      "channel": "StatQuest-style demo",
+      "duration": "11:40",
+      "blurb": "Distance to class centers and boundary flips — same idea as the challenge step.",
+      "url": "https://www.youtube.com/results?search_query=k+nearest+neighbors+decision+boundary"
+    }
+  ],
+  "articles": [
+    {
+      "id": "a1",
+      "kind": "Article",
+      "title": "A gentle intro to image classification",
+      "source": "Towards Data Science (search)",
+      "blurb": "Labels, train/test splits, and why simplified 2-feature demos still teach the core idea.",
+      "url": "https://towardsdatascience.com/?s=image+classification"
+    },
+    {
+      "id": "a2",
+      "kind": "Reading",
+      "title": "CS231n: Image classification notes",
+      "source": "Stanford CS231n",
+      "blurb": "Classic course notes on nearest-neighbor classifiers before deep nets.",
+      "url": "https://cs231n.github.io/classification/"
+    },
+    {
+      "id": "a3",
+      "kind": "Article",
+      "title": "Evaluating classifiers: accuracy isn’t enough",
+      "source": "Demo reading list",
+      "blurb": "Confusion matrices and hard examples — aligns with the Explain step in Learn by Doing.",
+      "url": "https://scikit-learn.org/stable/modules/model_evaluation.html"
+    }
+  ],
+  "news": [
+    {
+      "id": "n1",
+      "kind": "Latest news",
+      "title": "Vision models keep pushing benchmark accuracy",
+      "source": "Illustrative news digest",
+      "date": "2026-03-12",
+      "blurb": "Demo headline: new backbones improve ImageNet-style accuracy — still judge methods by held-out errors.",
+      "url": "https://news.google.com/search?q=computer%20vision%20image%20classification"
+    },
+    {
+      "id": "n2",
+      "kind": "Published news",
+      "title": "Why edge cases still break vision systems",
+      "source": "Illustrative industry brief",
+      "date": "2026-01-28",
+      "blurb": "Adverse lighting and rare classes — same limitation story as Research Gap demos.",
+      "url": "https://news.google.com/search?q=computer%20vision%20failure%20cases"
+    }
+  ],
+  "journals": [
+    {
+      "id": "j1",
+      "kind": "Journal",
+      "title": "ImageNet Classification with Deep Convolutional Neural Networks",
+      "venue": "NeurIPS / Communications of the ACM lineage (AlexNet)",
+      "year": "2012",
+      "blurb": "Landmark CNN classification paper — historical anchor for this lesson’s topic.",
+      "url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks"
+    },
+    {
+      "id": "j2",
+      "kind": "Journal",
+      "title": "Deep Residual Learning for Image Recognition",
+      "venue": "CVPR (ResNet)",
+      "year": "2016",
+      "blurb": "Residual nets that made deeper classifiers trainable — next reading after the toy exercise.",
+      "url": "https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html"
+    },
+    {
+      "id": "j3",
+      "kind": "Journal",
+      "title": "Very Deep Convolutional Networks for Large-Scale Image Recognition",
+      "venue": "ICLR (VGG)",
+      "year": "2015",
+      "blurb": "Depth vs accuracy trade-offs in classic ConvNet design.",
+      "url": "https://arxiv.org/abs/1409.1556"
+    }
+  ]
+}
