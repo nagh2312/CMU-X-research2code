@@ -1,0 +1,55 @@
+{
+  "id": "path-planning-demo",
+  "title": "Grid path planning (demo from a paper-style method)",
+  "paper": {
+    "name": "Illustrative path-planning paper (demo)",
+    "one_line": "Plan a collision-free path on a discrete grid from a start cell to a goal cell by expanding lowest-cost neighbors.",
+    "section_hints": ["Method", "Algorithm 1", "Experimental setup"]
+  },
+  "simulatable": {
+    "yes": [
+      "Discrete 2D grid world",
+      "Start and goal positions",
+      "Static rectangular obstacles",
+      "4-connected neighbor moves with uniform step cost"
+    ],
+    "partial": [
+      "Heuristic used for informed search (paper may name A*; we use Manhattan distance)"
+    ],
+    "missing": [
+      "Continuous kinematics / vehicle dynamics",
+      "Sensor noise and localization error",
+      "Moving obstacles and re-planning loops",
+      "Exact hardware timing and compute budget"
+    ]
+  },
+  "supported_by_paper": [
+    "Search expands cells by lowest path cost (open set / priority expansion).",
+    "Obstacles are treated as blocked cells the planner must not enter.",
+    "Success is a path from start to goal; failure is reported when no path exists."
+  ],
+  "assumptions": [
+    "World is a fixed 20×14 grid (paper scale / map size not specified for this demo).",
+    "Moves are up/down/left/right only; diagonal moves are disabled.",
+    "Every free step costs 1; no terrain costs from the paper.",
+    "Heuristic is Manhattan distance — a common choice when the paper is ambiguous.",
+    "Obstacles are axis-aligned blocks the user can place; not scanned from a figure."
+  ],
+  "controls": {
+    "grid_w": 20,
+    "grid_h": 14,
+    "heuristic": "manhattan",
+    "allow_diagonal": false,
+    "step_cost": 1
+  },
+  "default_scene": {
+    "start": [1, 1],
+    "goal": [18, 12],
+    "obstacles": [[5, 2], [5, 3], [5, 4], [5, 5], [5, 6], [5, 7], [10, 6], [10, 7], [10, 8], [10, 9], [10, 10], [10, 11], [14, 3], [14, 4], [14, 5], [15, 5], [16, 5]]
+  },
+  "explain_templates": {
+    "found": "The planner found a path of {length} steps (cost {cost}). Cells were expanded in lowest-cost order; the heuristic biased expansion toward the goal. This matches the paper's discrete search framing; continuous vehicle motion is an assumption we did not simulate.",
+    "blocked": "No path exists under the current obstacles and move rules. The open set emptied before the goal was reached — the same failure mode a grid planner reports when the free space is disconnected.",
+    "trivial": "Start and goal are the same cell, so the path is empty. Change either position to see planning behavior."
+  }
+}
