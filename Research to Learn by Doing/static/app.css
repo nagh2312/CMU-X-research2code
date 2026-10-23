@@ -456,14 +456,11 @@ button.tree-item:disabled { color: #98a2b3; cursor: default; }
   gap: 8px;
 }
 .connector-platforms > li {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 10px;
-  align-items: center;
   border: 1px solid var(--line);
   border-radius: 2px;
   background: #f9fafb;
-  padding: 10px 12px;
+  padding: 0;
+  overflow: hidden;
 }
 .connector-platforms .kind {
   color: var(--muted);
@@ -471,17 +468,23 @@ button.tree-item:disabled { color: #98a2b3; cursor: default; }
   font-weight: 600;
   text-align: right;
   max-width: 120px;
+  flex-shrink: 0;
 }
 .connector-platforms button.connector-pick {
   border: 0;
   background: transparent;
-  padding: 0;
+  padding: 12px;
   text-align: left;
   cursor: pointer;
   font: inherit;
   color: inherit;
   width: 100%;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
 }
+.connector-pick-main { min-width: 0; flex: 1; }
 .connector-platforms .name {
   font-weight: 700;
   font-size: 14px;

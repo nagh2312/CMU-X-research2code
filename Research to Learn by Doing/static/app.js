@@ -328,18 +328,16 @@
     }
   }
 
+  const DEFAULT_PAPER_ID = "image-classification-lesson";
+
   function openConnector(platformId) {
-    if (!state.pack) {
-      setText("connectors-map-line", "Load a research paper first (use the demo), then pick a connector.");
-      setText("job-status", "Load a paper before opening Connectors");
-      showStep("upload");
-      openConnectors(true);
-      return;
-    }
+    if (!platformId) return;
+    // Always navigate. If no paper uploaded yet, map to the demo lesson.
+    const paperId = state.pack?.id || sessionStorage.getItem("r2l_paper_id") || DEFAULT_PAPER_ID;
+    sessionStorage.setItem("r2l_paper_id", paperId);
     rememberPaper();
     openConnectors(false);
-    const q = encodeURIComponent(state.pack.id);
-    window.location.href = `/connect/${platformId}?paper=${q}`;
+    window.location.assign(`/connect/${platformId}?paper=${encodeURIComponent(paperId)}`);
   }
 
   function refreshConnectorCopy() {
@@ -348,14 +346,14 @@
     if (state.pack) {
       const name = state.pack.paper?.name || state.pack.title;
       if (line) {
-        line.innerHTML = `Mapped to <b>${esc(name)}</b>. Pick a platform — we’ll show study materials for this paper, then you can open the real site.`;
+        line.innerHTML = `Mapped to <b>${esc(name)}</b>. Click a platform to open its page with study materials for this paper.`;
       }
       if (tree) tree.textContent = `Mapped: ${name}`;
     } else {
       if (line) {
-        line.textContent = "Load a research paper first. Selecting a platform maps study materials to that paper, then opens the platform page.";
+        line.innerHTML = `No paper uploaded yet — clicking still opens the platform, mapped to the <b>image-classification demo</b>. Load a paper first for a tighter match.`;
       }
-      if (tree) tree.textContent = "No paper mapped yet";
+      if (tree) tree.textContent = "Will use demo paper mapping";
     }
   }
 
@@ -363,13 +361,18 @@
     connectorList.innerHTML = CONNECTORS.map((c) => `
       <li>
         <button type="button" class="connector-pick" data-platform="${esc(c.id)}">
-          <div class="name">${esc(c.name)}</div>
-          <div class="blurb">${esc(c.blurb)}</div>
+          <div class="connector-pick-main">
+            <div class="name">${esc(c.name)}</div>
+            <div class="blurb">${esc(c.blurb)}</div>
+          </div>
+          <div class="kind">${esc(c.kind)}</div>
         </button>
-        <div class="kind">${esc(c.kind)}</div>
       </li>`).join("");
     connectorList.querySelectorAll(".connector-pick").forEach((btn) => {
-      btn.addEventListener("click", () => openConnector(btn.dataset.platform));
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        openConnector(btn.dataset.platform);
+      });
     });
   }
 
