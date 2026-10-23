@@ -46,6 +46,8 @@ Use **Use path-planning demo** (or drop a PDF — the prototype loads the demo m
 | [`Research to Simulation/server.py`](./Research%20to%20Simulation/server.py) | Local prototype viewer (stdlib only) |
 | [`Research to Simulation/static/`](./Research%20to%20Simulation/static/) | Simulation UI |
 | [`Research to Simulation/demos/`](./Research%20to%20Simulation/demos/) | Demo method packs (claims vs assumptions) |
+| [`Research to Simulation/planner.py`](./Research%20to%20Simulation/planner.py) | Grid planner used by the demo |
+| [`Research to Simulation/test_demo.py`](./Research%20to%20Simulation/test_demo.py) | Unit tests + `python3 test_demo.py --demo` |
 
 The rest of the repository is still the R2C codebase (pipeline, agents, output-screen tabs). For the main R2C README and how to run paper → code, switch to the `main` branch.
 

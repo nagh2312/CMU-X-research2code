@@ -30,6 +30,16 @@ Then open **http://127.0.0.1:8801/**
 
 The demo uses a path-planning style method (the example in the product brief): change start, goal, and obstacles and watch how the planner responds.
 
+## Tests and CLI demo
+
+```bash
+# unit tests (demo pack + planner)
+python3 test_demo.py
+
+# print one run of the default scene
+python3 test_demo.py --demo
+```
+
 ## Layout
 
 | Path | Role |
@@ -37,5 +47,7 @@ The demo uses a path-planning style method (the example in the product brief): c
 | `server.py` | Local viewer (stdlib only) |
 | `static/` | Simulation UI |
 | `demos/` | Demo method packs (paper claims vs assumptions) |
+| `planner.py` | Grid path planner (shared with tests) |
+| `test_demo.py` | Unit tests and `--demo` CLI |
 
 This folder is intentionally separate from the main R2C pipeline viewer so the simulation output screen can evolve on its own.

@@ -25,11 +25,11 @@ HTML = """<!DOCTYPE html>
 <body>
   <header class="top">
     <div>
-      <p class="eyebrow">Research to Simulation</p>
-      <h1>Paper → interactive method</h1>
+      <p class="eyebrow">From paper to experiment</p>
+      <h1>Research to Simulation</h1>
       <p class="lede">Upload a paper, see what can be simulated, then experiment with the method — not just read it.</p>
     </div>
-    <a class="ghost" href="https://github.com/nagh2312/research2code/tree/research-to-simulation/Research%20to%20Simulation" target="_blank" rel="noopener">Prototype notes</a>
+    <a class="ghost" href="https://github.com/nagh2312/CMU-X-research2code/tree/research-to-simulation/Research%20to%20Simulation" target="_blank" rel="noopener">Prototype notes</a>
   </header>
 
   <nav class="steps" id="steps">
