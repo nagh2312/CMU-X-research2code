@@ -355,10 +355,40 @@
     el.innerHTML = `<h3>${esc(result.verdict)}</h3><p>${esc(result.detail)}</p>
       ${issues ? `<ul>${issues}</ul>` : ""}
       ${notes ? `<p class="muted"><b>Notes</b></p><ul>${notes}</ul>` : ""}`;
+    // Result sits below a long adjacency page. Scroll the workbench viewport (body is overflow:hidden).
+    const scrollResultIntoView = () => {
+      const viewport = document.querySelector(".viewport");
+      if (!viewport) {
+        el.scrollIntoView({ block: "center" });
+        return;
+      }
+      const elTop = el.getBoundingClientRect().top;
+      const vpTop = viewport.getBoundingClientRect().top;
+      const next = viewport.scrollTop + (elTop - vpTop) - Math.max(24, viewport.clientHeight * 0.2);
+      viewport.scrollTo({ top: Math.max(0, next), behavior: "auto" });
+    };
+    scrollResultIntoView();
+    setTimeout(scrollResultIntoView, 100);
+  }
+
+  function formNeedsDefaults() {
+    const tam = ($("m-tam")?.value || "").trim();
+    const sam = ($("m-sam")?.value || "").trim();
+    const som = ($("m-som")?.value || "").trim();
+    return !tam || !sam || !som;
   }
 
   function runMarketCheck() {
+    if (!state.unlocked.adjacency) {
+      setJobStatus("Load a paper first — then Check market");
+      showStep("upload");
+      return;
+    }
     showStep("adjacency");
+    // Toolbar shortcut: if figures are empty, fill the pack's demo defaults so the check isn't a no-op.
+    if (formNeedsDefaults() && state.marketDefaults) {
+      fillMarketDefaults();
+    }
     showCredibility(checkMarketCredibility(readMarketForm()));
   }
 
@@ -374,12 +404,20 @@
   });
 
   const mCheck = $("m-check");
-  if (mCheck) mCheck.addEventListener("click", () => showCredibility(checkMarketCredibility(readMarketForm())));
+  if (mCheck) {
+    mCheck.addEventListener("click", () => {
+      showCredibility(checkMarketCredibility(readMarketForm()));
+    });
+  }
   const mCheckTb = $("m-check-toolbar");
   if (mCheckTb) mCheckTb.addEventListener("click", runMarketCheck);
   const mFill = $("m-fill-demo");
   if (mFill) {
     mFill.addEventListener("click", () => {
+      if (!state.marketDefaults) {
+        setJobStatus("Load a paper first to get demo market figures");
+        return;
+      }
       fillMarketDefaults();
       showCredibility(checkMarketCredibility(readMarketForm()));
     });
