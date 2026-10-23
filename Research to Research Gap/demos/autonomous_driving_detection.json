@@ -1,0 +1,136 @@
+{
+  "id": "autonomous-driving-detection-demo",
+  "title": "Object detection for autonomous driving (illustrative demo)",
+  "paper": {
+    "name": "Illustrative paper: ML object detection for autonomous driving",
+    "one_line": "A detector trained on a daytime clear-weather driving dataset reports strong mAP, but is not evaluated in rain, fog, or low light.",
+    "domain": "computer vision / autonomous driving"
+  },
+  "established": {
+    "research_question": "Can a convolutional detector localize and classify common traffic objects well enough for an autonomous-driving perception stack on a standard daytime benchmark?",
+    "methodology": "Supervised training of a one-stage detector on labeled camera frames; evaluation with mean average precision (mAP) and per-class AP on a held-out clear-weather split.",
+    "findings": [
+      "Overall mAP on the clear daytime test split is competitive with contemporaneous baselines reported in the paper.",
+      "Per-class AP is strongest for cars and pedestrians; weaker for rare classes (e.g. bicycles at distance).",
+      "Inference latency on the authors' reference GPU meets their stated real-time threshold for the demo vehicle setup."
+    ],
+    "limitations": [
+      "Training and test data are dominated by daytime, clear-weather scenes.",
+      "No systematic evaluation in rain, fog, snow, or low-light / night driving.",
+      "Dataset geography and sensor suite are fixed; cross-city and cross-camera generalization are not measured.",
+      "The paper does not report closed-loop driving outcomes — perception metrics only."
+    ],
+    "conclusions": [
+      "Within the clear daytime setting, the method is presented as a viable perception component.",
+      "Authors note that robustness to adverse conditions remains open."
+    ]
+  },
+  "gap_assessment": {
+    "has_clear_gap": true,
+    "summary": "Yes — the paper itself leaves adverse-weather and low-light robustness largely untested, while claiming utility for autonomous driving where those conditions matter.",
+    "invented_gap_warning": null,
+    "gaps": [
+      {
+        "id": "g1",
+        "title": "Adverse weather and low-light robustness not evaluated",
+        "kind": "author_acknowledged",
+        "support_passages": [
+          "Limitation: no systematic evaluation in rain, fog, snow, or low-light / night driving.",
+          "Authors note that robustness to adverse conditions remains open."
+        ],
+        "why_it_matters": "Autonomous driving must operate outside clear daytime. Without those tests, the paper's practical claim is incomplete.",
+        "what_it_could_establish": "Whether detection quality holds (or fails) under rain, fog, and night, and by how much mAP drops."
+      },
+      {
+        "id": "g2",
+        "title": "Cross-city / cross-sensor generalization unmeasured",
+        "kind": "inferred_from_paper",
+        "support_passages": [
+          "Dataset geography and sensor suite are fixed; cross-city and cross-camera generalization are not measured."
+        ],
+        "why_it_matters": "A single geography and camera stack can overstate readiness for deployment elsewhere.",
+        "what_it_could_establish": "How much performance transfers when city or camera changes, without claiming field-wide novelty."
+      }
+    ]
+  },
+  "author_future_work": [
+    {
+      "text": "Evaluate the detector under adverse weather and nighttime conditions.",
+      "practical_meaning": "Collect or license rain/fog/night frames (or use a public adverse-weather driving set), re-run the same mAP protocol, and report degradation vs the clear daytime baseline."
+    },
+    {
+      "text": "Explore domain adaptation or augmentation for robustness.",
+      "practical_meaning": "Try weather augmentations or adaptation methods and compare to the unaugmented model on the same adverse split."
+    }
+  ],
+  "next_steps": [
+    {
+      "priority": 1,
+      "title": "Adverse-condition evaluation suite",
+      "involves": [
+        "Define rain, fog, and low-light evaluation splits (public sets or newly labeled frames).",
+        "Freeze the trained weights from the paper setting; measure mAP and per-class AP per condition.",
+        "Report absolute scores and drop vs clear daytime."
+      ],
+      "would_help_establish": "How far the published clear-weather result extends into conditions the authors already flag as open.",
+      "suggested_experiments": [
+        "mAP / AP by weather bucket",
+        "Failure-case gallery (missed pedestrians at night, false positives in spray)",
+        "Optional: confidence calibration under each condition"
+      ],
+      "source": "author_acknowledged",
+      "needs_literature": false
+    },
+    {
+      "priority": 2,
+      "title": "Targeted data collection or augmentation for the weakest condition",
+      "involves": [
+        "Pick the condition with the largest drop from step 1.",
+        "Add labeled data or physics-inspired augmentations for that condition.",
+        "Retrain or fine-tune and re-evaluate on the held-out adverse split."
+      ],
+      "would_help_establish": "Whether the limitation is mainly data coverage vs a harder algorithmic failure mode.",
+      "suggested_experiments": [
+        "Ablation: clear-only vs clear+adverse training",
+        "Same test protocol as the paper plus the new adverse split"
+      ],
+      "source": "author_future_work",
+      "needs_literature": false
+    },
+    {
+      "priority": 3,
+      "title": "Cross-dataset check (different city or camera)",
+      "involves": [
+        "Run the released model (or a faithful reimplementation) on another public driving detection set.",
+        "Compare per-class AP shifts without changing training."
+      ],
+      "would_help_establish": "Sensitivity to geography/sensor — an inferred gap from the paper's fixed setup, not a claim that nobody has studied this.",
+      "suggested_experiments": [
+        "Zero-shot transfer mAP",
+        "Error analysis by object size and lighting"
+      ],
+      "source": "inferred_from_paper",
+      "needs_literature": true,
+      "literature_note": "To argue this is still open in the field, you would need related work on domain generalization for driving detectors — not available from this paper alone."
+    }
+  ],
+  "no_gap_alternative": {
+    "when_to_use": "If a paper already closes the obvious limitations and states no open future work.",
+    "suggestions": [
+      "Replicate on a newer public benchmark the authors did not use.",
+      "Compare against a stronger contemporary baseline.",
+      "Follow an explicitly stated future direction only — do not invent a gap."
+    ]
+  },
+  "evidence_boundaries": {
+    "from_uploaded_paper": [
+      "All findings, limitations, and author future-work items above are grounded in the demo pack's paper-style claims.",
+      "Gap g1 is treated as author-acknowledged because the paper states adverse conditions remain open."
+    ],
+    "would_need_related_literature": [
+      "Whether adverse-weather detection is still a novel gap across the whole field.",
+      "Whether a specific newer architecture already solves the limitation.",
+      "Priority 3's novelty as a research contribution beyond this paper's setup."
+    ]
+  }
+}

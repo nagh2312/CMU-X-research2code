@@ -1,0 +1,82 @@
+{
+  "id": "paper-already-closed-demo",
+  "title": "Method with limitations already addressed (illustrative)",
+  "paper": {
+    "name": "Illustrative paper: gaps already closed in-text",
+    "one_line": "The authors evaluate clear weather, rain, fog, and night, compare two strong baselines, and state no further open questions beyond routine scaling.",
+    "domain": "computer vision / autonomous driving"
+  },
+  "established": {
+    "research_question": "Does the detector remain accurate across weather and lighting when trained with a multi-condition dataset?",
+    "methodology": "Multi-condition training and evaluation; mAP reported per weather bucket; comparison to two published baselines.",
+    "findings": [
+      "mAP stays within a small band across clear, rain, fog, and night splits.",
+      "Outperforms both baselines on the authors' multi-condition benchmark."
+    ],
+    "limitations": [
+      "Compute cost is higher than a clear-weather-only model (acknowledged, measured).",
+      "Closed-loop driving still out of scope — same as many perception papers."
+    ],
+    "conclusions": [
+      "Within the multi-condition camera benchmark, the method is presented as evaluated end-to-end for the stated question.",
+      "Authors do not list adverse weather as future work; they treat it as addressed."
+    ]
+  },
+  "gap_assessment": {
+    "has_clear_gap": false,
+    "summary": "No clear research gap is supported beyond routine extensions. The paper already evaluates the obvious robustness conditions. This tool will not invent a gap.",
+    "invented_gap_warning": "Do not manufacture a weather-robustness gap — the paper already reports those experiments.",
+    "gaps": []
+  },
+  "author_future_work": [
+    {
+      "text": "Scale training to a larger multi-city corpus when available.",
+      "practical_meaning": "A scaling / data-volume direction, not an untested scientific limitation."
+    }
+  ],
+  "next_steps": [
+    {
+      "priority": 1,
+      "title": "Follow the authors' stated scaling direction",
+      "involves": [
+        "Train on a larger multi-city set if you have access.",
+        "Keep the same per-condition mAP protocol."
+      ],
+      "would_help_establish": "Whether accuracy holds as data scale grows — matching stated future work.",
+      "suggested_experiments": ["Learning curves vs dataset size", "Per-city mAP"],
+      "source": "author_future_work",
+      "needs_literature": false
+    },
+    {
+      "priority": 2,
+      "title": "Compare against a newer baseline (not a paper-supported gap)",
+      "involves": [
+        "Pick a stronger contemporary detector.",
+        "Evaluate both on the same multi-condition splits."
+      ],
+      "would_help_establish": "Relative standing vs newer methods — this is an extension, not evidence of a gap left open by the paper.",
+      "suggested_experiments": ["Head-to-head mAP table", "Latency vs accuracy"],
+      "source": "extension_not_gap",
+      "needs_literature": true,
+      "literature_note": "Choosing which baseline is 'newer' requires literature outside this paper."
+    }
+  ],
+  "no_gap_alternative": {
+    "when_to_use": "When has_clear_gap is false.",
+    "suggestions": [
+      "Replicate on a newer public benchmark the authors did not use.",
+      "Compare with a newer approach.",
+      "Investigate only an explicitly stated future direction — do not invent a gap."
+    ]
+  },
+  "evidence_boundaries": {
+    "from_uploaded_paper": [
+      "Adverse conditions are already evaluated in the paper's own tables.",
+      "Future work is limited to scaling data, not new untested phenomena."
+    ],
+    "would_need_related_literature": [
+      "Whether a newer architecture would beat this result.",
+      "Whether multi-city scaling is still an open contribution in the field."
+    ]
+  }
+}
